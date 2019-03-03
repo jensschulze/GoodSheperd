@@ -1,5 +1,5 @@
 #include "GoodSheperd.hpp"
-#include <random>
+#include "dsp/digital.hpp"
 
 struct Hurdle : Module {
 	enum ParamIds {
@@ -20,10 +20,10 @@ struct Hurdle : Module {
 
 	bool isOpen = false;
 	bool lastGateInWasHigh = false;
+	SchmittTrigger trigger;
     
 	Hurdle() : Module(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) {}
 	void step() override;
-	float get_random();
 };
 
 
@@ -31,8 +31,7 @@ void Hurdle::step() {
 	float probability = inputs[PROBABILITY_INPUT].value;
 	probability = clamp(probability, 0.0f, 10.0f);
 
-	float gateInValue = inputs[GATE_INPUT].value;
-    bool gateInIsHigh = gateInValue >= 1.0f;
+    bool gateInIsHigh = trigger.process(inputs[GATE_INPUT].value);
 
     if (isOpen) {
 		// Gate is open
@@ -47,7 +46,7 @@ void Hurdle::step() {
 		// Gate closed. Will open only at rising edge
 		if (true == gateInIsHigh && false == lastGateInWasHigh) {
 			// Make a decision!
-			if (probability >= get_random()) {
+			if (probability >= randomUniform() * 10.0f) {
 				isOpen = true;
 			}
 		}
@@ -60,14 +59,6 @@ void Hurdle::step() {
 	}
 
 	lastGateInWasHigh = gateInIsHigh;
-}
-
-
-float Hurdle::get_random() {
-    static std::default_random_engine e;
-    static std::uniform_real_distribution<float> dis(0.0, 10.0);
-
-	return dis(e);
 }
 
 
