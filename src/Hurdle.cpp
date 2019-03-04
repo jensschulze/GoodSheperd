@@ -20,7 +20,6 @@ struct Hurdle : Module {
 
 	bool isOpen = false;
 	bool lastGateInWasHigh = false;
-	SchmittTrigger trigger;
     
 	Hurdle() : Module(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) {}
 	void step() override;
@@ -31,9 +30,10 @@ void Hurdle::step() {
 	float probability = inputs[PROBABILITY_INPUT].value;
 	probability = clamp(probability, 0.0f, 10.0f);
 
-    bool gateInIsHigh = trigger.process(inputs[GATE_INPUT].value);
+  float gateInValue = inputs[GATE_INPUT].value;
+  bool gateInIsHigh = gateInValue >= 1.0f;	
 
-    if (isOpen) {
+  if (isOpen) {
 		// Gate is open
 		if (true == gateInIsHigh) {
 			// Input is high: keep gate open
@@ -44,7 +44,7 @@ void Hurdle::step() {
 		}
 	} else {
 		// Gate closed. Will open only at rising edge
-		if (true == gateInIsHigh && false == lastGateInWasHigh) {
+		if (gateInIsHigh && !lastGateInWasHigh) {
 			// Make a decision!
 			if (probability >= randomUniform() * 10.0f) {
 				isOpen = true;
