@@ -10,4 +10,5 @@ void init(Plugin *p) {
 	p->version = TOSTRING(VERSION);
 
 	p->addModel(modelHurdle);
+	p->addModel(modelSEQ3st);
 }
