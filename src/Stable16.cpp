@@ -61,10 +61,10 @@ struct Stable16 : Module
 
 	void onReset() override
 	{
-		// for (int i = 0; i < 8; i++)
-		// {
-		// 	gates[i] = true;
-		// }
+		for (int i = 0; i < 8; i++)
+		{
+			rowStepIndex[i] = 0;
+		}
 	}
 
 	void onRandomize() override
@@ -298,17 +298,17 @@ struct Stable16Widget : ModuleWidget
 		}
 
 		static const float othersX = 492;
-		addParam(ParamWidget::create<Rogan1PGreen>(Vec(othersX, 10), module, Stable16::CLOCK_PARAM, -2.0f, 6.0f, 2.0f));
-		addInput(Port::create<PJ301MPort>(Vec(othersX, 50), Port::INPUT, module, Stable16::CLOCK_INPUT));
-		addParam(ParamWidget::create<LEDButton>(Vec(othersX, 90), module, Stable16::RUN_PARAM, 0.0f, 1.0f, 0.0f));
-		addChild(ModuleLightWidget::create<MediumLight<GreenLight>>(Vec(othersX + 4.4f, 94.4f), module, Stable16::RUNNING_LIGHT));
-		addInput(Port::create<PJ301MPort>(Vec(othersX, 130), Port::INPUT, module, Stable16::EXT_CLOCK_INPUT));
-		addParam(ParamWidget::create<LEDButton>(Vec(othersX, 170.0f), module, Stable16::RESET_PARAM, 0.0f, 1.0f, 0.0f));
-		addChild(ModuleLightWidget::create<MediumLight<GreenLight>>(Vec(othersX + 4.4f, 174.4f), module, Stable16::RESET_LIGHT));
-		addInput(Port::create<PJ301MPort>(Vec(othersX, 210), Port::INPUT, module, Stable16::RESET_INPUT));
-		addParam(ParamWidget::create<RoundBlackSnapKnob>(Vec(othersX, 250), module, Stable16::STEPS_PARAM, 1.0f, 8.0f, 8.0f));
-		addInput(Port::create<PJ301MPort>(Vec(othersX, 290), Port::INPUT, module, Stable16::STEPS_INPUT));
-		addChild(ModuleLightWidget::create<MediumLight<GreenLight>>(Vec(othersX, 330), module, Stable16::GATES_LIGHT));
+		addParam(ParamWidget::create<Rogan1PGreen>(Vec(othersX - 16.0f, stepGridY[0] - 16.0f), module, Stable16::CLOCK_PARAM, -2.0f, 6.0f, 2.0f));
+		addInput(Port::create<PJ301MPort>(Vec(othersX - 12.5f, stepGridY[1] - 12.5f), Port::INPUT, module, Stable16::CLOCK_INPUT));
+		addInput(Port::create<PJ301MPort>(Vec(othersX - 12.5f, stepGridY[2] - 12.5f), Port::INPUT, module, Stable16::EXT_CLOCK_INPUT));
+		addParam(ParamWidget::create<LEDButton>(Vec(othersX - 9.0f, stepGridY[3] - 9.0f), module, Stable16::RUN_PARAM, 0.0f, 1.0f, 0.0f));
+		addChild(ModuleLightWidget::create<MediumLight<GreenLight>>(Vec(othersX - 4.6f, stepGridY[3] - 4.6f), module, Stable16::RUNNING_LIGHT));
+		addParam(ParamWidget::create<LEDButton>(Vec(othersX - 9.0f, stepGridY[4] - 9.0f), module, Stable16::RESET_PARAM, 0.0f, 1.0f, 0.0f));
+		addChild(ModuleLightWidget::create<MediumLight<GreenLight>>(Vec(othersX - 4.6f, stepGridY[4] - 4.6f), module, Stable16::RESET_LIGHT));
+		addInput(Port::create<PJ301MPort>(Vec(othersX - 12.5f, stepGridY[5] - 12.5f), Port::INPUT, module, Stable16::RESET_INPUT));
+		addParam(ParamWidget::create<RoundBlackSnapKnob>(Vec(othersX - 16.0f, stepGridY[6] - 16.0f), module, Stable16::STEPS_PARAM, 1.0f, 8.0f, 8.0f));
+		addInput(Port::create<PJ301MPort>(Vec(othersX, stepGridY[7]), Port::INPUT, module, Stable16::STEPS_INPUT));
+		addChild(ModuleLightWidget::create<MediumLight<GreenLight>>(Vec(200.0f, 5.0f), module, Stable16::GATES_LIGHT));
 
 		// addOutput(Port::create<PJ301MPort>(Vec(portX[4] - 1, 98), Port::OUTPUT, module, Stable16::GATES_OUTPUT));
 		// addOutput(Port::create<PJ301MPort>(Vec(portX[5] - 1, 98), Port::OUTPUT, module, Stable16::ROW1_OUTPUT));
