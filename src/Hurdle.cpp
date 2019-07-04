@@ -26,7 +26,8 @@ struct Hurdle : Module
 	bool isOpen = false;
 	bool lastGateInWasHigh = false;
 
-	Hurdle() : Module(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) {}
+	Hurdle() {
+		config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);}
 	void step() override;
 };
 
