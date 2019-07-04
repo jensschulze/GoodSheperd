@@ -269,10 +269,10 @@ struct Stable16Widget : ModuleWidget
 	{
 		setPanel(SVG::load(assetPlugin(pluginInstance, "res/Stable16.svg")));
 
-		addChild(Widget::create<ScrewSilver>(Vec(15, 0)));
-		addChild(Widget::create<ScrewSilver>(Vec(box.size.x - 30, 0)));
-		addChild(Widget::create<ScrewSilver>(Vec(15, 365)));
-		addChild(Widget::create<ScrewSilver>(Vec(box.size.x - 30, 365)));
+		addChild(createWidget<ScrewSilver>(Vec(15, 0)));
+		addChild(createWidget<ScrewSilver>(Vec(box.size.x - 30, 0)));
+		addChild(createWidget<ScrewSilver>(Vec(15, 365)));
+		addChild(createWidget<ScrewSilver>(Vec(box.size.x - 30, 365)));
 
 		static const float stepGridX[16] = {20, 40, 60, 80, 100, 120, 140, 160, 180, 200, 220, 240, 260, 280, 300, 320};
 		static const float stepGridY[8] = {64, 104, 144, 184, 224, 264, 304, 344};
@@ -283,53 +283,53 @@ struct Stable16Widget : ModuleWidget
 		{
 			for (int x = 0; x < 16; x++)
 			{
-				addParam(ParamWidget::create<LEDButton>(Vec(stepGridX[x] - 9.0f, stepGridY[y] - 9.0f), module, Stable16::STEP_PARAM + x + 16 * y, 0.0f, 1.0f, 0.0f));   //36px
-				addChild(ModuleLightWidget::create<MediumLight<GreenLight>>(Vec(stepGridX[x] - 4.6f, stepGridY[y] - 4.6f), module, Stable16::STEP_LIGHT + x + 16 * y)); // 20px
+				addParam(createParam<LEDButton>(Vec(stepGridX[x] - 9.0f, stepGridY[y] - 9.0f), module, Stable16::STEP_PARAM + x + 16 * y, 0.0f, 1.0f, 0.0f));   //36px
+				addChild(createLight<MediumLight<GreenLight>>(Vec(stepGridX[x] - 4.6f, stepGridY[y] - 4.6f), module, Stable16::STEP_LIGHT + x + 16 * y)); // 20px
 			}
 		}
 
 		for (int y = 0; y < 8; y++)
 		{
-			addOutput(Port::create<PJ301MPort>(Vec(gatesOutX - 12.5f, stepGridY[y] - 12.5f), Port::OUTPUT, module, Stable16::ROW_OUTPUT + y));					// 50px
-			addChild(ModuleLightWidget::create<MediumLight<GreenLight>>(Vec(gatesOutX - 27.0f - 5.0f, stepGridY[y] - 5.0f), module, Stable16::ROW_LIGHTS + y)); // 20px
+			addOutput(createPort<PJ301MPort>(Vec(gatesOutX - 12.5f, stepGridY[y] - 12.5f), PortWidget::OUTPUT, module, Stable16::ROW_OUTPUT + y));					// 50px
+			addChild(createLight<MediumLight<GreenLight>>(Vec(gatesOutX - 27.0f - 5.0f, stepGridY[y] - 5.0f), module, Stable16::ROW_LIGHTS + y)); // 20px
 
-			addParam(ParamWidget::create<RoundBlackSnapKnob>(Vec(startKnobsX - 16.0f, stepGridY[y] - 16.0f), module, Stable16::START_PARAM + y, 0.0f, 15.0f, 0.0f)); // 64px
-			addParam(ParamWidget::create<RoundBlackSnapKnob>(Vec(endKnobsX - 16.0f, stepGridY[y] - 16.0f), module, Stable16::END_PARAM + y, 0.0f, 15.0f, 15.0f));	// 64px
+			addParam(createParam<RoundBlackSnapKnob>(Vec(startKnobsX - 16.0f, stepGridY[y] - 16.0f), module, Stable16::START_PARAM + y, 0.0f, 15.0f, 0.0f)); // 64px
+			addParam(createParam<RoundBlackSnapKnob>(Vec(endKnobsX - 16.0f, stepGridY[y] - 16.0f), module, Stable16::END_PARAM + y, 0.0f, 15.0f, 15.0f));	// 64px
 		}
 
 		static const float othersX = 492;
-		addParam(ParamWidget::create<Rogan1PGreen>(Vec(othersX - 16.0f, stepGridY[0] - 16.0f), module, Stable16::CLOCK_PARAM, -2.0f, 6.0f, 2.0f));
-		addInput(Port::create<PJ301MPort>(Vec(othersX - 12.5f, stepGridY[1] - 12.5f), Port::INPUT, module, Stable16::CLOCK_INPUT));
-		addInput(Port::create<PJ301MPort>(Vec(othersX - 12.5f, stepGridY[2] - 12.5f), Port::INPUT, module, Stable16::EXT_CLOCK_INPUT));
-		addParam(ParamWidget::create<LEDButton>(Vec(othersX - 9.0f, stepGridY[3] - 9.0f), module, Stable16::RUN_PARAM, 0.0f, 1.0f, 0.0f));
-		addChild(ModuleLightWidget::create<MediumLight<GreenLight>>(Vec(othersX - 4.6f, stepGridY[3] - 4.6f), module, Stable16::RUNNING_LIGHT));
-		addParam(ParamWidget::create<LEDButton>(Vec(othersX - 9.0f, stepGridY[4] - 9.0f), module, Stable16::RESET_PARAM, 0.0f, 1.0f, 0.0f));
-		addChild(ModuleLightWidget::create<MediumLight<GreenLight>>(Vec(othersX - 4.6f, stepGridY[4] - 4.6f), module, Stable16::RESET_LIGHT));
-		addInput(Port::create<PJ301MPort>(Vec(othersX - 12.5f, stepGridY[5] - 12.5f), Port::INPUT, module, Stable16::RESET_INPUT));
-		addParam(ParamWidget::create<RoundBlackSnapKnob>(Vec(othersX - 16.0f, stepGridY[6] - 16.0f), module, Stable16::STEPS_PARAM, 1.0f, 8.0f, 8.0f));
-		addInput(Port::create<PJ301MPort>(Vec(othersX, stepGridY[7]), Port::INPUT, module, Stable16::STEPS_INPUT));
-		addChild(ModuleLightWidget::create<MediumLight<GreenLight>>(Vec(200.0f, 5.0f), module, Stable16::GATES_LIGHT));
+		addParam(createParam<Rogan1PGreen>(Vec(othersX - 16.0f, stepGridY[0] - 16.0f), module, Stable16::CLOCK_PARAM, -2.0f, 6.0f, 2.0f));
+		addInput(createPort<PJ301MPort>(Vec(othersX - 12.5f, stepGridY[1] - 12.5f), PortWidget::INPUT, module, Stable16::CLOCK_INPUT));
+		addInput(createPort<PJ301MPort>(Vec(othersX - 12.5f, stepGridY[2] - 12.5f), PortWidget::INPUT, module, Stable16::EXT_CLOCK_INPUT));
+		addParam(createParam<LEDButton>(Vec(othersX - 9.0f, stepGridY[3] - 9.0f), module, Stable16::RUN_PARAM, 0.0f, 1.0f, 0.0f));
+		addChild(createLight<MediumLight<GreenLight>>(Vec(othersX - 4.6f, stepGridY[3] - 4.6f), module, Stable16::RUNNING_LIGHT));
+		addParam(createParam<LEDButton>(Vec(othersX - 9.0f, stepGridY[4] - 9.0f), module, Stable16::RESET_PARAM, 0.0f, 1.0f, 0.0f));
+		addChild(createLight<MediumLight<GreenLight>>(Vec(othersX - 4.6f, stepGridY[4] - 4.6f), module, Stable16::RESET_LIGHT));
+		addInput(createPort<PJ301MPort>(Vec(othersX - 12.5f, stepGridY[5] - 12.5f), PortWidget::INPUT, module, Stable16::RESET_INPUT));
+		addParam(createParam<RoundBlackSnapKnob>(Vec(othersX - 16.0f, stepGridY[6] - 16.0f), module, Stable16::STEPS_PARAM, 1.0f, 8.0f, 8.0f));
+		addInput(createPort<PJ301MPort>(Vec(othersX, stepGridY[7]), PortWidget::INPUT, module, Stable16::STEPS_INPUT));
+		addChild(createLight<MediumLight<GreenLight>>(Vec(200.0f, 5.0f), module, Stable16::GATES_LIGHT));
 
-		// addOutput(Port::create<PJ301MPort>(Vec(portX[4] - 1, 98), Port::OUTPUT, module, Stable16::GATES_OUTPUT));
-		// addOutput(Port::create<PJ301MPort>(Vec(portX[5] - 1, 98), Port::OUTPUT, module, Stable16::ROW1_OUTPUT));
-		// addOutput(Port::create<PJ301MPort>(Vec(portX[6] - 1, 98), Port::OUTPUT, module, Stable16::ROW2_OUTPUT));
-		// addOutput(Port::create<PJ301MPort>(Vec(portX[7] - 1, 98), Port::OUTPUT, module, Stable16::ROW3_OUTPUT));
+		// addOutput(createPort<PJ301MPort>(Vec(portX[4] - 1, 98), PortWidget::OUTPUT, module, Stable16::GATES_OUTPUT));
+		// addOutput(createPort<PJ301MPort>(Vec(portX[5] - 1, 98), PortWidget::OUTPUT, module, Stable16::ROW1_OUTPUT));
+		// addOutput(createPort<PJ301MPort>(Vec(portX[6] - 1, 98), PortWidget::OUTPUT, module, Stable16::ROW2_OUTPUT));
+		// addOutput(createPort<PJ301MPort>(Vec(portX[7] - 1, 98), PortWidget::OUTPUT, module, Stable16::ROW3_OUTPUT));
 
 		// for (int i = 0; i < 8; i++)
 		// {
-		// 	addParam(ParamWidget::create<Rogan1PBlue>(Vec(portX[i] - 6, 157), module, Stable16::ROW1_PARAM + i, 0.0f, 10.0f, 0.0f));
-		// 	addParam(ParamWidget::create<Rogan1PWhite>(Vec(portX[i] - 6, 198), module, Stable16::ROW2_PARAM + i, 0.0f, 10.0f, 0.0f));
-		// 	addParam(ParamWidget::create<Rogan1PRed>(Vec(portX[i] - 6, 240), module, Stable16::ROW3_PARAM + i, 0.0f, 10.0f, 0.0f));
-		// 	addChild(ModuleLightWidget::create<MediumLight<GreenLight>>(Vec(portX[i] + 6.4f, 281.4f), module, Stable16::GATE_LIGHTS + i));
-		// 	addOutput(Port::create<PJ301MPort>(Vec(portX[i] - 1, 307), Port::OUTPUT, module, Stable16::GATE_OUTPUT + i));
+		// 	addParam(createParam<Rogan1PBlue>(Vec(portX[i] - 6, 157), module, Stable16::ROW1_PARAM + i, 0.0f, 10.0f, 0.0f));
+		// 	addParam(createParam<Rogan1PWhite>(Vec(portX[i] - 6, 198), module, Stable16::ROW2_PARAM + i, 0.0f, 10.0f, 0.0f));
+		// 	addParam(createParam<Rogan1PRed>(Vec(portX[i] - 6, 240), module, Stable16::ROW3_PARAM + i, 0.0f, 10.0f, 0.0f));
+		// 	addChild(createLight<MediumLight<GreenLight>>(Vec(portX[i] + 6.4f, 281.4f), module, Stable16::GATE_LIGHTS + i));
+		// 	addOutput(createPort<PJ301MPort>(Vec(portX[i] - 1, 307), PortWidget::OUTPUT, module, Stable16::GATE_OUTPUT + i));
 		// }
-		// addOutput(Port::create<PJ301MPort>(Vec(360, 162), Port::OUTPUT, module, Stable16::GATE_ROW1_OUTPUT));
-		// addChild(ModuleLightWidget::create<MediumLight<GreenLight>>(Vec(335, 169), module, Stable16::GATE_ROW1_LIGHT));
-		// addOutput(Port::create<PJ301MPort>(Vec(360, 203), Port::OUTPUT, module, Stable16::GATE_ROW2_OUTPUT));
-		// addChild(ModuleLightWidget::create<MediumLight<GreenLight>>(Vec(335, 210), module, Stable16::GATE_ROW2_LIGHT));
-		// addOutput(Port::create<PJ301MPort>(Vec(360, 244), Port::OUTPUT, module, Stable16::GATE_ROW3_OUTPUT));
-		// addChild(ModuleLightWidget::create<MediumLight<GreenLight>>(Vec(335, 252), module, Stable16::GATE_ROW3_LIGHT));
+		// addOutput(createPort<PJ301MPort>(Vec(360, 162), PortWidget::OUTPUT, module, Stable16::GATE_ROW1_OUTPUT));
+		// addChild(createLight<MediumLight<GreenLight>>(Vec(335, 169), module, Stable16::GATE_ROW1_LIGHT));
+		// addOutput(createPort<PJ301MPort>(Vec(360, 203), PortWidget::OUTPUT, module, Stable16::GATE_ROW2_OUTPUT));
+		// addChild(createLight<MediumLight<GreenLight>>(Vec(335, 210), module, Stable16::GATE_ROW2_LIGHT));
+		// addOutput(createPort<PJ301MPort>(Vec(360, 244), PortWidget::OUTPUT, module, Stable16::GATE_ROW3_OUTPUT));
+		// addChild(createLight<MediumLight<GreenLight>>(Vec(335, 252), module, Stable16::GATE_ROW3_LIGHT));
 	}
 };
 
-Model *modelStable16 = Model::create<Stable16, Stable16Widget>("Stable16");
+Model *modelStable16 = createModel<Stable16, Stable16Widget>("Stable16");

@@ -83,16 +83,16 @@ struct HurdleWidget : ModuleWidget
 	{
 		setPanel(SVG::load(assetPlugin(pluginInstance, "res/Hurdle.svg")));
 
-		addChild(Widget::create<ScrewSilver>(Vec(RACK_GRID_WIDTH, 0)));
-		addChild(Widget::create<ScrewSilver>(Vec(box.size.x - 2 * RACK_GRID_WIDTH, 0)));
-		addChild(Widget::create<ScrewSilver>(Vec(RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
-		addChild(Widget::create<ScrewSilver>(Vec(box.size.x - 2 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
+		addChild(createWidget<ScrewSilver>(Vec(RACK_GRID_WIDTH, 0)));
+		addChild(createWidget<ScrewSilver>(Vec(box.size.x - 2 * RACK_GRID_WIDTH, 0)));
+		addChild(createWidget<ScrewSilver>(Vec(RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
+		addChild(createWidget<ScrewSilver>(Vec(box.size.x - 2 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
 
-		addInput(Port::create<PJ301MPort>(Vec(11, 97), Port::INPUT, module, Hurdle::PROBABILITY_INPUT));
-		addInput(Port::create<PJ301MPort>(Vec(11, 237), Port::INPUT, module, Hurdle::GATE_INPUT));
-		addOutput(Port::create<PJ301MPort>(Vec(11, 293), Port::OUTPUT, module, Hurdle::GATE_OUTPUT));
+		addInput(createPort<PJ301MPort>(Vec(11, 97), PortWidget::INPUT, module, Hurdle::PROBABILITY_INPUT));
+		addInput(createPort<PJ301MPort>(Vec(11, 237), PortWidget::INPUT, module, Hurdle::GATE_INPUT));
+		addOutput(createPort<PJ301MPort>(Vec(11, 293), PortWidget::OUTPUT, module, Hurdle::GATE_OUTPUT));
 	}
 };
 
 // Specify the Module and ModuleWidget subclass plus human-readable module name
-Model *modelHurdle = Model::create<Hurdle, HurdleWidget>("Hurdle");
+Model *modelHurdle = createModel<Hurdle, HurdleWidget>("Hurdle");
