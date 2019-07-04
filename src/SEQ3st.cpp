@@ -1,5 +1,4 @@
 #include "GoodSheperd.hpp"
-#include "dsp/digital.hpp"
 
 struct SEQ3st : Module
 {

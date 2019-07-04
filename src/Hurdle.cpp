@@ -1,5 +1,4 @@
 #include "GoodSheperd.hpp"
-#include "dsp/digital.hpp"
 
 struct Hurdle : Module
 {
@@ -26,8 +25,10 @@ struct Hurdle : Module
 	bool isOpen = false;
 	bool lastGateInWasHigh = false;
 
-	Hurdle() {
-		config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);}
+	Hurdle()
+	{
+		config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);
+	}
 	void step() override;
 };
 

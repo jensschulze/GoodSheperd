@@ -1,5 +1,4 @@
 #include "GoodSheperd.hpp"
-#include "dsp/digital.hpp"
 
 struct Stable16 : Module
 {
@@ -283,15 +282,15 @@ struct Stable16Widget : ModuleWidget
 		{
 			for (int x = 0; x < 16; x++)
 			{
-				addParam(createParam<LEDButton>(Vec(stepGridX[x] - 9.0f, stepGridY[y] - 9.0f), module, Stable16::STEP_PARAM + x + 16 * y, 0.0f, 1.0f, 0.0f));   //36px
-				addChild(createLight<MediumLight<GreenLight>>(Vec(stepGridX[x] - 4.6f, stepGridY[y] - 4.6f), module, Stable16::STEP_LIGHT + x + 16 * y)); // 20px
+				addParam(createParam<LEDButton>(Vec(stepGridX[x] - 9.0f, stepGridY[y] - 9.0f), module, Stable16::STEP_PARAM + x + 16 * y, 0.0f, 1.0f, 0.0f)); //36px
+				addChild(createLight<MediumLight<GreenLight>>(Vec(stepGridX[x] - 4.6f, stepGridY[y] - 4.6f), module, Stable16::STEP_LIGHT + x + 16 * y));	 // 20px
 			}
 		}
 
 		for (int y = 0; y < 8; y++)
 		{
-			addOutput(createPort<PJ301MPort>(Vec(gatesOutX - 12.5f, stepGridY[y] - 12.5f), PortWidget::OUTPUT, module, Stable16::ROW_OUTPUT + y));					// 50px
-			addChild(createLight<MediumLight<GreenLight>>(Vec(gatesOutX - 27.0f - 5.0f, stepGridY[y] - 5.0f), module, Stable16::ROW_LIGHTS + y)); // 20px
+			addOutput(createPort<PJ301MPort>(Vec(gatesOutX - 12.5f, stepGridY[y] - 12.5f), PortWidget::OUTPUT, module, Stable16::ROW_OUTPUT + y)); // 50px
+			addChild(createLight<MediumLight<GreenLight>>(Vec(gatesOutX - 27.0f - 5.0f, stepGridY[y] - 5.0f), module, Stable16::ROW_LIGHTS + y));  // 20px
 
 			addParam(createParam<RoundBlackSnapKnob>(Vec(startKnobsX - 16.0f, stepGridY[y] - 16.0f), module, Stable16::START_PARAM + y, 0.0f, 15.0f, 0.0f)); // 64px
 			addParam(createParam<RoundBlackSnapKnob>(Vec(endKnobsX - 16.0f, stepGridY[y] - 16.0f), module, Stable16::END_PARAM + y, 0.0f, 15.0f, 15.0f));	// 64px
