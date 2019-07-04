@@ -82,7 +82,7 @@ struct SEQ3st : Module
 		}
 	}
 
-	json_t *toJson() override
+	json_t *dataToJson() override
 	{
 		json_t *rootJ = json_object();
 
@@ -100,7 +100,7 @@ struct SEQ3st : Module
 		return rootJ;
 	}
 
-	void fromJson(json_t *rootJ) override
+	void dataFromJson(json_t *rootJ) override
 	{
 		// running
 		json_t *runningJ = json_object_get(rootJ, "running");
