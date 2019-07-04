@@ -298,4 +298,4 @@ struct SEQ3stWidget : ModuleWidget
 	}
 };
 
-Model *modelSEQ3st = Model::create<SEQ3st, SEQ3stWidget>("GoodSheperd", "SEQ3st", "SEQ-3st", SEQUENCER_TAG);
+Model *modelSEQ3st = Model::create<SEQ3st, SEQ3stWidget>("SEQ3st");

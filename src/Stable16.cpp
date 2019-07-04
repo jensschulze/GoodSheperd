@@ -332,4 +332,4 @@ struct Stable16Widget : ModuleWidget
 	}
 };
 
-Model *modelStable16 = Model::create<Stable16, Stable16Widget>("GoodSheperd", "Stable16", "Stable16", SEQUENCER_TAG);
+Model *modelStable16 = Model::create<Stable16, Stable16Widget>("Stable16");
