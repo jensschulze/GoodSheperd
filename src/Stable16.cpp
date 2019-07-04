@@ -267,7 +267,7 @@ struct Stable16Widget : ModuleWidget
 {
 	Stable16Widget(Stable16 *module) : ModuleWidget(module)
 	{
-		setPanel(SVG::load(assetPlugin(plugin, "res/Stable16.svg")));
+		setPanel(SVG::load(assetPlugin(pluginInstance, "res/Stable16.svg")));
 
 		addChild(Widget::create<ScrewSilver>(Vec(15, 0)));
 		addChild(Widget::create<ScrewSilver>(Vec(box.size.x - 30, 0)));

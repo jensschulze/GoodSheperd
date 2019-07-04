@@ -252,7 +252,7 @@ struct SEQ3stWidget : ModuleWidget
 
 	SEQ3stWidget(SEQ3st *module) : ModuleWidget(module)
 	{
-		setPanel(SVG::load(assetPlugin(plugin, "res/SEQ3st.svg")));
+		setPanel(SVG::load(assetPlugin(pluginInstance, "res/SEQ3st.svg")));
 
 		addChild(Widget::create<ScrewSilver>(Vec(15, 0)));
 		addChild(Widget::create<ScrewSilver>(Vec(box.size.x - 30, 0)));
