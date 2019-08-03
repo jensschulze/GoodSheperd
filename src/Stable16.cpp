@@ -7,7 +7,6 @@ struct Stable16 : Module
 		CLOCK_PARAM,
 		RUN_PARAM,
 		RESET_PARAM,
-		STEPS_PARAM,
 		ENUMS(STEP_PARAM, 128),
 		ENUMS(START_PARAM, 8),
 		ENUMS(END_PARAM, 8),
@@ -19,7 +18,6 @@ struct Stable16 : Module
 		CLOCK_INPUT,
 		EXT_CLOCK_INPUT,
 		RESET_INPUT,
-		STEPS_INPUT,
 		NUM_INPUTS
 	};
 	enum OutputIds
@@ -48,7 +46,6 @@ struct Stable16 : Module
 	SchmittTrigger gateTriggers[8];
 	/** Phase of internal LFO */
 	float phase = 0.f;
-	int index = 0;
 	bool stepValue[128] = {};
 	int rowStepIndex[8] = {0, 0, 0, 0, 0, 0, 0};
 	int rowStepIncrement[8] = {1, 1, 1, 1, 1, 1, 1, 1};
@@ -160,16 +157,17 @@ struct Stable16 : Module
 		}
 	}
 
-	void setIndex(int index)
+	void resetStepIndices()
 	{
-		int numSteps = (int)clamp(roundf(params[STEPS_PARAM].value + inputs[STEPS_INPUT].value), 1.0f, 8.0f);
 		phase = 0.f;
-		this->index = index;
-		if (this->index >= numSteps)
-			this->index = 0;
+
+		for (int row = 0; row < 8; row++)
+		{
+			rowStepIndex[row] = (int)params[START_PARAM + row].value;
+		}
 	}
 
-	int getIndex(int row)
+	int getMatrixPosition(int row)
 	{
 		return 16 * row + rowStepIndex[row];
 	}
@@ -206,7 +204,6 @@ struct Stable16 : Module
 				// External clock
 				if (clockTrigger.process(inputs[EXT_CLOCK_INPUT].value))
 				{
-					setIndex(index + 1);
 					calculateNextIndex();
 				}
 				gateIn = clockTrigger.isHigh();
@@ -218,7 +215,6 @@ struct Stable16 : Module
 				phase += clockTime * engineGetSampleTime();
 				if (phase >= 1.0f)
 				{
-					setIndex(index + 1);
 					calculateNextIndex();
 				}
 				gateIn = (phase < 0.5f);
@@ -228,7 +224,7 @@ struct Stable16 : Module
 		// Reset
 		if (resetTrigger.process(params[RESET_PARAM].value + inputs[RESET_INPUT].value))
 		{
-			setIndex(0);
+			resetStepIndices();
 		}
 
 		lights[RESET_LIGHT].setBrightnessSmooth(resetTrigger.isHigh());
@@ -247,14 +243,14 @@ struct Stable16 : Module
 		// Cursor Position
 		for (int y = 0; y < 8; y++)
 		{
-			lights[STEP_LIGHT + getIndex(y)].setBrightnessSmooth(0.5f);
+			lights[STEP_LIGHT + getMatrixPosition(y)].setBrightnessSmooth(0.5f);
 		}
 
 		// Outputs
 		// outputs[GATES_OUTPUT].value = (gateIn && gates[index]) ? 10.0f : 0.0f;
 		for (int y = 0; y < 8; y++)
 		{
-			outputs[ROW_OUTPUT + y].value = (gateIn && stepValue[getIndex(y)]) ? 10.0f : 0.0f;
+			outputs[ROW_OUTPUT + y].value = (gateIn && stepValue[getMatrixPosition(y)]) ? 10.0f : 0.0f;
 			lights[ROW_LIGHTS + y].value = outputs[ROW_OUTPUT + y].value / 10.0f;
 		}
 
@@ -300,14 +296,12 @@ struct Stable16Widget : ModuleWidget
 		addParam(createParam<Rogan1PGreen>(Vec(othersX - 16.0f, stepGridY[0] - 16.0f), module, Stable16::CLOCK_PARAM, -2.0f, 6.0f, 2.0f));
 		addInput(createPort<PJ301MPort>(Vec(othersX - 12.5f, stepGridY[1] - 12.5f), PortWidget::INPUT, module, Stable16::CLOCK_INPUT));
 		addInput(createPort<PJ301MPort>(Vec(othersX - 12.5f, stepGridY[2] - 12.5f), PortWidget::INPUT, module, Stable16::EXT_CLOCK_INPUT));
-		addParam(createParam<LEDButton>(Vec(othersX - 9.0f, stepGridY[3] - 9.0f), module, Stable16::RUN_PARAM, 0.0f, 1.0f, 0.0f));
-		addChild(createLight<MediumLight<GreenLight>>(Vec(othersX - 4.6f, stepGridY[3] - 4.6f), module, Stable16::RUNNING_LIGHT));
-		addParam(createParam<LEDButton>(Vec(othersX - 9.0f, stepGridY[4] - 9.0f), module, Stable16::RESET_PARAM, 0.0f, 1.0f, 0.0f));
-		addChild(createLight<MediumLight<GreenLight>>(Vec(othersX - 4.6f, stepGridY[4] - 4.6f), module, Stable16::RESET_LIGHT));
-		addInput(createPort<PJ301MPort>(Vec(othersX - 12.5f, stepGridY[5] - 12.5f), PortWidget::INPUT, module, Stable16::RESET_INPUT));
-		addParam(createParam<RoundBlackSnapKnob>(Vec(othersX - 16.0f, stepGridY[6] - 16.0f), module, Stable16::STEPS_PARAM, 1.0f, 8.0f, 8.0f));
-		addInput(createPort<PJ301MPort>(Vec(othersX, stepGridY[7]), PortWidget::INPUT, module, Stable16::STEPS_INPUT));
-		addChild(createLight<MediumLight<GreenLight>>(Vec(200.0f, 5.0f), module, Stable16::GATES_LIGHT));
+		addChild(createLight<MediumLight<GreenLight>>(Vec(othersX - 4.6f, stepGridY[3] - 9.0f), module, Stable16::GATES_LIGHT));
+		addParam(createParam<LEDButton>(Vec(othersX - 9.0f, stepGridY[4] - 9.0f), module, Stable16::RUN_PARAM, 0.0f, 1.0f, 0.0f));
+		addChild(createLight<MediumLight<GreenLight>>(Vec(othersX - 4.6f, stepGridY[4] - 4.6f), module, Stable16::RUNNING_LIGHT));
+		addParam(createParam<LEDButton>(Vec(othersX - 9.0f, stepGridY[5] - 9.0f), module, Stable16::RESET_PARAM, 0.0f, 1.0f, 0.0f));
+		addChild(createLight<MediumLight<GreenLight>>(Vec(othersX - 4.6f, stepGridY[5] - 4.6f), module, Stable16::RESET_LIGHT));
+		addInput(createPort<PJ301MPort>(Vec(othersX - 12.5f, stepGridY[6] - 12.5f), PortWidget::INPUT, module, Stable16::RESET_INPUT));
 
 		// addOutput(createPort<PJ301MPort>(Vec(portX[4] - 1, 98), PortWidget::OUTPUT, module, Stable16::GATES_OUTPUT));
 		// addOutput(createPort<PJ301MPort>(Vec(portX[5] - 1, 98), PortWidget::OUTPUT, module, Stable16::ROW1_OUTPUT));
