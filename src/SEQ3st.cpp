@@ -60,8 +60,11 @@ struct SEQ3st : Module
 	bool gateRow2IsOpen = false;
 	bool gateRow3IsOpen = false;
 
-	SEQ3st() : Module(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS)
+	dsp::ClockDivider lightDivider;
+
+	SEQ3st()
 	{
+		config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);
 		configParam(SEQ3st::CLOCK_PARAM, -2.0f, 6.0f, 2.0f);
 		configParam(SEQ3st::RUN_PARAM, 0.0f, 1.0f, 0.0f);
 		configParam(SEQ3st::RESET_PARAM, 0.0f, 1.0f, 0.0f);
@@ -226,7 +229,7 @@ struct SEQ3st : Module
 				gates[i] = !gates[i];
 			}
 			outputs[GATE_OUTPUT + i].setVoltage((running && gateIn && i == index && gates[i]) ? 10.0f : 0.0f);
-			lights[GATE_LIGHTS + i].setBrightnessSmooth((gateIn && i == index) ? (gates[i] ? 1.f : 0.33) : (gates[i] ? 0.66 : 0.0));
+			lights[GATE_LIGHTS + i].setSmoothBrightness((gateIn && i == index) ? (gates[i] ? 1.f : 0.33) : (gates[i] ? 0.66 : 0.0), args.sampleTime * lightDivider.getDivision());
 		}
 
 		// Outputs
@@ -235,8 +238,8 @@ struct SEQ3st : Module
 		outputs[ROW3_OUTPUT].setVoltage(params[ROW3_PARAM + index].getValue());
 		outputs[GATES_OUTPUT].setVoltage((gateIn && gates[index]) ? 10.0f : 0.0f);
 		lights[RUNNING_LIGHT].value = (running);
-		lights[RESET_LIGHT].setBrightnessSmooth(resetTrigger.isHigh());
-		lights[GATES_LIGHT].setBrightnessSmooth(gateIn);
+		lights[RESET_LIGHT].setSmoothBrightness(resetTrigger.isHigh(), args.sampleTime * lightDivider.getDivision());
+		lights[GATES_LIGHT].setSmoothBrightness(gateIn, args.sampleTime * lightDivider.getDivision());
 		lights[ROW_LIGHTS].value = outputs[ROW1_OUTPUT].value / 10.0f;
 		lights[ROW_LIGHTS + 1].value = outputs[ROW2_OUTPUT].value / 10.0f;
 		lights[ROW_LIGHTS + 2].value = outputs[ROW3_OUTPUT].value / 10.0f;
@@ -261,8 +264,9 @@ struct SEQ3stWidget : ModuleWidget
 		}
 	};
 
-	SEQ3stWidget(SEQ3st *module) : ModuleWidget(module)
+	SEQ3stWidget(SEQ3st *module)
 	{
+		setModule(module);
 		setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/SEQ3st.svg")));
 
 		addChild(createWidget<ScrewSilver>(Vec(15, 0)));

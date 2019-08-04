@@ -81,8 +81,9 @@ void Hurdle::process(const ProcessArgs &args)
 
 struct HurdleWidget : ModuleWidget
 {
-	HurdleWidget(Hurdle *module) : ModuleWidget(module)
+	HurdleWidget(Hurdle *module)
 	{
+		setModule(module);
 		setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/Hurdle.svg")));
 
 		addChild(createWidget<ScrewSilver>(Vec(RACK_GRID_WIDTH, 0)));

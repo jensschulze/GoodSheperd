@@ -50,8 +50,11 @@ struct Stable16 : Module
 	int rowStepIndex[8] = {0, 0, 0, 0, 0, 0, 0};
 	int rowStepIncrement[8] = {1, 1, 1, 1, 1, 1, 1, 1};
 
-	Stable16() : Module(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS)
+	dsp::ClockDivider lightDivider;
+
+	Stable16()
 	{
+		config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);
 		for (int x = 0; x < 16; x++)
 		{
 			for (int y = 0; y < 8; y++)
@@ -244,7 +247,7 @@ struct Stable16 : Module
 			resetStepIndices();
 		}
 
-		lights[RESET_LIGHT].setBrightnessSmooth(resetTrigger.isHigh());
+		lights[RESET_LIGHT].setSmoothBrightness(resetTrigger.isHigh(), args.sampleTime * lightDivider.getDivision());
 
 		// Steps
 		for (int i = 0; i < 128; i++)
@@ -254,13 +257,13 @@ struct Stable16 : Module
 				stepValue[i] = !stepValue[i];
 			}
 
-			lights[STEP_LIGHT + i].setBrightnessSmooth(stepValue[i] ? 1.0f : 0.0f);
+			lights[STEP_LIGHT + i].setSmoothBrightness(stepValue[i] ? 1.0f : 0.0f, args.sampleTime * lightDivider.getDivision());
 		}
 
 		// Cursor Position
 		for (int y = 0; y < 8; y++)
 		{
-			lights[STEP_LIGHT + getMatrixPosition(y)].setBrightnessSmooth(0.5f);
+			lights[STEP_LIGHT + getMatrixPosition(y)].setSmoothBrightness(0.5f, args.sampleTime * lightDivider.getDivision());
 		}
 
 		// Outputs
@@ -271,14 +274,15 @@ struct Stable16 : Module
 			lights[ROW_LIGHTS + y].value = outputs[ROW_OUTPUT + y].value / 10.0f;
 		}
 
-		lights[GATES_LIGHT].setBrightnessSmooth(gateIn);
+		lights[GATES_LIGHT].setSmoothBrightness(gateIn, args.sampleTime * lightDivider.getDivision());
 	}
 };
 
 struct Stable16Widget : ModuleWidget
 {
-	Stable16Widget(Stable16 *module) : ModuleWidget(module)
+	Stable16Widget(Stable16 *module)
 	{
+		setModule(module);
 		setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/Stable16.svg")));
 
 		addChild(createWidget<ScrewSilver>(Vec(15, 0)));
