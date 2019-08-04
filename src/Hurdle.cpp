@@ -60,7 +60,7 @@ void Hurdle::process(const ProcessArgs &args)
 		if (gateInIsHigh && !lastGateInWasHigh)
 		{
 			// Make a decision!
-			if (probability >= randomUniform() * 10.0f)
+			if (probability >= random::uniform() * 10.0f)
 			{
 				isOpen = true;
 			}
@@ -83,7 +83,7 @@ struct HurdleWidget : ModuleWidget
 {
 	HurdleWidget(Hurdle *module) : ModuleWidget(module)
 	{
-		setPanel(APP->window->loadSvg(assetPlugin(pluginInstance, "res/Hurdle.svg")));
+		setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/Hurdle.svg")));
 
 		addChild(createWidget<ScrewSilver>(Vec(RACK_GRID_WIDTH, 0)));
 		addChild(createWidget<ScrewSilver>(Vec(box.size.x - 2 * RACK_GRID_WIDTH, 0)));

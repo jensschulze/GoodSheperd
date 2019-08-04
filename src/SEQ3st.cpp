@@ -77,7 +77,7 @@ struct SEQ3st : Module
 	{
 		for (int i = 0; i < 8; i++)
 		{
-			gates[i] = (randomUniform() > 0.5f);
+			gates[i] = (random::uniform() > 0.5f);
 		}
 	}
 
@@ -149,15 +149,15 @@ struct SEQ3st : Module
 				if (clockTrigger.process(inputs[EXT_CLOCK_INPUT].value))
 				{
 					setIndex(index + 1);
-					if (params[ROW1_PARAM + index].value >= randomUniform() * 10.f)
+					if (params[ROW1_PARAM + index].value >= random::uniform() * 10.f)
 					{
 						gateRow1Out = true;
 					}
-					if (params[ROW2_PARAM + index].value >= randomUniform() * 10.f)
+					if (params[ROW2_PARAM + index].value >= random::uniform() * 10.f)
 					{
 						gateRow2Out = true;
 					}
-					if (params[ROW3_PARAM + index].value >= randomUniform() * 10.f)
+					if (params[ROW3_PARAM + index].value >= random::uniform() * 10.f)
 					{
 						gateRow3Out = true;
 					}
@@ -172,15 +172,15 @@ struct SEQ3st : Module
 				if (phase >= 1.0f)
 				{
 					setIndex(index + 1);
-					if (params[ROW1_PARAM + index].value >= randomUniform() * 10.f)
+					if (params[ROW1_PARAM + index].value >= random::uniform() * 10.f)
 					{
 						gateRow1Out = true;
 					}
-					if (params[ROW2_PARAM + index].value >= randomUniform() * 10.f)
+					if (params[ROW2_PARAM + index].value >= random::uniform() * 10.f)
 					{
 						gateRow2Out = true;
 					}
-					if (params[ROW3_PARAM + index].value >= randomUniform() * 10.f)
+					if (params[ROW3_PARAM + index].value >= random::uniform() * 10.f)
 					{
 						gateRow3Out = true;
 					}
@@ -251,7 +251,7 @@ struct SEQ3stWidget : ModuleWidget
 
 	SEQ3stWidget(SEQ3st *module) : ModuleWidget(module)
 	{
-		setPanel(APP->window->loadSvg(assetPlugin(pluginInstance, "res/SEQ3st.svg")));
+		setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/SEQ3st.svg")));
 
 		addChild(createWidget<ScrewSilver>(Vec(15, 0)));
 		addChild(createWidget<ScrewSilver>(Vec(box.size.x - 30, 0)));

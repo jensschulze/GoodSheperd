@@ -67,7 +67,7 @@ struct Stable16 : Module
 	{
 		// for (int i = 0; i < 8; i++)
 		// {
-		// 	gates[i] = (randomUniform() > 0.5f);
+		// 	gates[i] = (random::uniform() > 0.5f);
 		// }
 	}
 
@@ -262,7 +262,7 @@ struct Stable16Widget : ModuleWidget
 {
 	Stable16Widget(Stable16 *module) : ModuleWidget(module)
 	{
-		setPanel(APP->window->loadSvg(assetPlugin(pluginInstance, "res/Stable16.svg")));
+		setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/Stable16.svg")));
 
 		addChild(createWidget<ScrewSilver>(Vec(15, 0)));
 		addChild(createWidget<ScrewSilver>(Vec(box.size.x - 30, 0)));
