@@ -62,6 +62,18 @@ struct SEQ3st : Module
 
 	SEQ3st() : Module(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS)
 	{
+		configParam(SEQ3st::CLOCK_PARAM, -2.0f, 6.0f, 2.0f);
+		configParam(SEQ3st::RUN_PARAM, 0.0f, 1.0f, 0.0f);
+		configParam(SEQ3st::RESET_PARAM, 0.0f, 1.0f, 0.0f);
+		configParam(SEQ3st::STEPS_PARAM, 1.0f, 8.0f, 8.0f);
+		for (int i = 0; i < 8; i++)
+		{
+			configParam(SEQ3st::ROW1_PARAM + i, 0.0f, 10.0f, 0.0f);
+			configParam(SEQ3st::ROW2_PARAM + i, 0.0f, 10.0f, 0.0f);
+			configParam(SEQ3st::ROW3_PARAM + i, 0.0f, 10.0f, 0.0f);
+			configParam(SEQ3st::GATE_PARAM + i, 0.0f, 1.0f, 0.0f);
+		}
+
 		onReset();
 	}
 
