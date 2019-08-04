@@ -168,7 +168,7 @@ struct SEQ3st : Module
 			{
 				// Internal clock
 				float clockTime = powf(2.0f, params[CLOCK_PARAM].value + inputs[CLOCK_INPUT].value);
-				phase += clockTime * engineGetSampleTime();
+				phase += clockTime * args.sampleTime;
 				if (phase >= 1.0f)
 				{
 					setIndex(index + 1);
