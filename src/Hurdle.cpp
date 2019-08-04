@@ -29,10 +29,10 @@ struct Hurdle : Module
 	{
 		config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);
 	}
-	void step() override;
+	void process(const ProcessArgs &args) override;
 };
 
-void Hurdle::step()
+void Hurdle::process(const ProcessArgs &args)
 {
 	float probability = inputs[PROBABILITY_INPUT].value;
 	probability = clamp(probability, 0.0f, 10.0f);

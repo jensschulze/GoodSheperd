@@ -128,7 +128,7 @@ struct SEQ3st : Module
 			this->index = 0;
 	}
 
-	void step() override
+	void process(const ProcessArgs &args) override
 	{
 		// Run
 		if (runningTrigger.process(params[RUN_PARAM].value))

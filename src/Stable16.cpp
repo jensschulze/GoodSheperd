@@ -186,7 +186,7 @@ struct Stable16 : Module
 		phase = 0.f;
 	}
 
-	void step() override
+	void process(const ProcessArgs &args) override
 	{
 		// Run
 		if (runningTrigger.process(params[RUN_PARAM].value))
