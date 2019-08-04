@@ -48,10 +48,10 @@ struct SEQ3st : Module
 	};
 
 	bool running = true;
-	SchmittTrigger clockTrigger;
-	SchmittTrigger runningTrigger;
-	SchmittTrigger resetTrigger;
-	SchmittTrigger gateTriggers[8];
+	dsp::SchmittTrigger clockTrigger;
+	dsp::SchmittTrigger runningTrigger;
+	dsp::SchmittTrigger resetTrigger;
+	dsp::SchmittTrigger gateTriggers[8];
 	/** Phase of internal LFO */
 	float phase = 0.f;
 	int index = 0;

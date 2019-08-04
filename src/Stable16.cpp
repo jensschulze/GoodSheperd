@@ -39,11 +39,11 @@ struct Stable16 : Module
 	};
 
 	bool running = true;
-	SchmittTrigger clockTrigger;
-	SchmittTrigger runningTrigger;
-	SchmittTrigger stepTrigger[128];
-	SchmittTrigger resetTrigger;
-	SchmittTrigger gateTriggers[8];
+	dsp::SchmittTrigger clockTrigger;
+	dsp::SchmittTrigger runningTrigger;
+	dsp::SchmittTrigger stepTrigger[128];
+	dsp::SchmittTrigger resetTrigger;
+	dsp::SchmittTrigger gateTriggers[8];
 	/** Phase of internal LFO */
 	float phase = 0.f;
 	bool stepValue[128] = {};
