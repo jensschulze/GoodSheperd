@@ -34,10 +34,10 @@ struct Hurdle : Module
 
 void Hurdle::process(const ProcessArgs &args)
 {
-	float probability = inputs[PROBABILITY_INPUT].value;
+	float probability = inputs[PROBABILITY_INPUT].getVoltage();
 	probability = clamp(probability, 0.0f, 10.0f);
 
-	float gateInValue = inputs[GATE_INPUT].value;
+	float gateInValue = inputs[GATE_INPUT].getVoltage();
 	bool gateInIsHigh = gateInValue >= 1.0f;
 
 	if (isOpen)
@@ -69,11 +69,11 @@ void Hurdle::process(const ProcessArgs &args)
 
 	if (isOpen)
 	{
-		outputs[GATE_OUTPUT].value = 10.0f;
+		outputs[GATE_OUTPUT].setVoltage(10.0f);
 	}
 	else
 	{
-		outputs[GATE_OUTPUT].value = 0.0f;
+		outputs[GATE_OUTPUT].setVoltage(0.0f);
 	}
 
 	lastGateInWasHigh = gateInIsHigh;

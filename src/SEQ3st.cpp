@@ -121,7 +121,7 @@ struct SEQ3st : Module
 
 	void setIndex(int index)
 	{
-		int numSteps = (int)clamp(roundf(params[STEPS_PARAM].value + inputs[STEPS_INPUT].value), 1.0f, 8.0f);
+		int numSteps = (int)clamp(roundf(params[STEPS_PARAM].getValue() + inputs[STEPS_INPUT].getVoltage()), 1.0f, 8.0f);
 		phase = 0.f;
 		this->index = index;
 		if (this->index >= numSteps)
@@ -131,7 +131,7 @@ struct SEQ3st : Module
 	void process(const ProcessArgs &args) override
 	{
 		// Run
-		if (runningTrigger.process(params[RUN_PARAM].value))
+		if (runningTrigger.process(params[RUN_PARAM].getValue()))
 		{
 			running = !running;
 		}
@@ -143,21 +143,21 @@ struct SEQ3st : Module
 
 		if (running)
 		{
-			if (inputs[EXT_CLOCK_INPUT].active)
+			if (inputs[EXT_CLOCK_INPUT].isConnected())
 			{
 				// External clock
-				if (clockTrigger.process(inputs[EXT_CLOCK_INPUT].value))
+				if (clockTrigger.process(inputs[EXT_CLOCK_INPUT].getVoltage()))
 				{
 					setIndex(index + 1);
-					if (params[ROW1_PARAM + index].value >= random::uniform() * 10.f)
+					if (params[ROW1_PARAM + index].getValue() >= random::uniform() * 10.f)
 					{
 						gateRow1Out = true;
 					}
-					if (params[ROW2_PARAM + index].value >= random::uniform() * 10.f)
+					if (params[ROW2_PARAM + index].getValue() >= random::uniform() * 10.f)
 					{
 						gateRow2Out = true;
 					}
-					if (params[ROW3_PARAM + index].value >= random::uniform() * 10.f)
+					if (params[ROW3_PARAM + index].getValue() >= random::uniform() * 10.f)
 					{
 						gateRow3Out = true;
 					}
@@ -167,20 +167,20 @@ struct SEQ3st : Module
 			else
 			{
 				// Internal clock
-				float clockTime = powf(2.0f, params[CLOCK_PARAM].value + inputs[CLOCK_INPUT].value);
+				float clockTime = powf(2.0f, params[CLOCK_PARAM].getValue() + inputs[CLOCK_INPUT].getVoltage());
 				phase += clockTime * args.sampleTime;
 				if (phase >= 1.0f)
 				{
 					setIndex(index + 1);
-					if (params[ROW1_PARAM + index].value >= random::uniform() * 10.f)
+					if (params[ROW1_PARAM + index].getValue() >= random::uniform() * 10.f)
 					{
 						gateRow1Out = true;
 					}
-					if (params[ROW2_PARAM + index].value >= random::uniform() * 10.f)
+					if (params[ROW2_PARAM + index].getValue() >= random::uniform() * 10.f)
 					{
 						gateRow2Out = true;
 					}
-					if (params[ROW3_PARAM + index].value >= random::uniform() * 10.f)
+					if (params[ROW3_PARAM + index].getValue() >= random::uniform() * 10.f)
 					{
 						gateRow3Out = true;
 					}
@@ -201,7 +201,7 @@ struct SEQ3st : Module
 		gateRow3IsOpen = gateRow3Out;
 
 		// Reset
-		if (resetTrigger.process(params[RESET_PARAM].value + inputs[RESET_INPUT].value))
+		if (resetTrigger.process(params[RESET_PARAM].getValue() + inputs[RESET_INPUT].getVoltage()))
 		{
 			setIndex(0);
 		}
@@ -209,19 +209,19 @@ struct SEQ3st : Module
 		// Gate buttons
 		for (int i = 0; i < 8; i++)
 		{
-			if (gateTriggers[i].process(params[GATE_PARAM + i].value))
+			if (gateTriggers[i].process(params[GATE_PARAM + i].getValue()))
 			{
 				gates[i] = !gates[i];
 			}
-			outputs[GATE_OUTPUT + i].value = (running && gateIn && i == index && gates[i]) ? 10.0f : 0.0f;
+			outputs[GATE_OUTPUT + i].setVoltage((running && gateIn && i == index && gates[i]) ? 10.0f : 0.0f);
 			lights[GATE_LIGHTS + i].setBrightnessSmooth((gateIn && i == index) ? (gates[i] ? 1.f : 0.33) : (gates[i] ? 0.66 : 0.0));
 		}
 
 		// Outputs
-		outputs[ROW1_OUTPUT].value = params[ROW1_PARAM + index].value;
-		outputs[ROW2_OUTPUT].value = params[ROW2_PARAM + index].value;
-		outputs[ROW3_OUTPUT].value = params[ROW3_PARAM + index].value;
-		outputs[GATES_OUTPUT].value = (gateIn && gates[index]) ? 10.0f : 0.0f;
+		outputs[ROW1_OUTPUT].setVoltage(params[ROW1_PARAM + index].getValue());
+		outputs[ROW2_OUTPUT].setVoltage(params[ROW2_PARAM + index].getValue());
+		outputs[ROW3_OUTPUT].setVoltage(params[ROW3_PARAM + index].getValue());
+		outputs[GATES_OUTPUT].setVoltage((gateIn && gates[index]) ? 10.0f : 0.0f);
 		lights[RUNNING_LIGHT].value = (running);
 		lights[RESET_LIGHT].setBrightnessSmooth(resetTrigger.isHigh());
 		lights[GATES_LIGHT].setBrightnessSmooth(gateIn);
@@ -229,9 +229,9 @@ struct SEQ3st : Module
 		lights[ROW_LIGHTS + 1].value = outputs[ROW2_OUTPUT].value / 10.0f;
 		lights[ROW_LIGHTS + 2].value = outputs[ROW3_OUTPUT].value / 10.0f;
 
-		outputs[GATE_ROW1_OUTPUT].value = gateRow1Out ? 10.0f : 0.0f;
-		outputs[GATE_ROW2_OUTPUT].value = gateRow2Out ? 10.0f : 0.0f;
-		outputs[GATE_ROW3_OUTPUT].value = gateRow3Out ? 10.0f : 0.0f;
+		outputs[GATE_ROW1_OUTPUT].setVoltage(gateRow1Out ? 10.0f : 0.0f);
+		outputs[GATE_ROW2_OUTPUT].setVoltage(gateRow2Out ? 10.0f : 0.0f);
+		outputs[GATE_ROW3_OUTPUT].setVoltage(gateRow3Out ? 10.0f : 0.0f);
 		lights[GATE_ROW1_LIGHT].value = outputs[GATE_ROW1_OUTPUT].value / 10.0f;
 		lights[GATE_ROW2_LIGHT].value = outputs[GATE_ROW2_OUTPUT].value / 10.0f;
 		lights[GATE_ROW3_LIGHT].value = outputs[GATE_ROW3_OUTPUT].value / 10.0f;

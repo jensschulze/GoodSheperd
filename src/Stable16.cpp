@@ -163,7 +163,7 @@ struct Stable16 : Module
 
 		for (int row = 0; row < 8; row++)
 		{
-			rowStepIndex[row] = (int)params[START_PARAM + row].value;
+			rowStepIndex[row] = (int)params[START_PARAM + row].getValue();
 		}
 	}
 
@@ -177,9 +177,9 @@ struct Stable16 : Module
 		for (int row = 0; row < 8; row++)
 		{
 			rowStepIndex[row] = rowStepIndex[row] + rowStepIncrement[row];
-			if (rowStepIndex[row] > (int)params[END_PARAM + row].value)
+			if (rowStepIndex[row] > (int)params[END_PARAM + row].getValue())
 			{
-				rowStepIndex[row] = (int)params[START_PARAM + row].value;
+				rowStepIndex[row] = (int)params[START_PARAM + row].getValue();
 			}
 		}
 
@@ -189,7 +189,7 @@ struct Stable16 : Module
 	void process(const ProcessArgs &args) override
 	{
 		// Run
-		if (runningTrigger.process(params[RUN_PARAM].value))
+		if (runningTrigger.process(params[RUN_PARAM].getValue()))
 		{
 			running = !running;
 		}
@@ -199,10 +199,10 @@ struct Stable16 : Module
 
 		if (running)
 		{
-			if (inputs[EXT_CLOCK_INPUT].active)
+			if (inputs[EXT_CLOCK_INPUT].isConnected())
 			{
 				// External clock
-				if (clockTrigger.process(inputs[EXT_CLOCK_INPUT].value))
+				if (clockTrigger.process(inputs[EXT_CLOCK_INPUT].getVoltage()))
 				{
 					calculateNextIndex();
 				}
@@ -211,7 +211,7 @@ struct Stable16 : Module
 			else
 			{
 				// Internal clock
-				float clockTime = powf(2.0f, params[CLOCK_PARAM].value + inputs[CLOCK_INPUT].value);
+				float clockTime = powf(2.0f, params[CLOCK_PARAM].getValue() + inputs[CLOCK_INPUT].getVoltage());
 				phase += clockTime * args.sampleTime;
 				if (phase >= 1.0f)
 				{
@@ -222,7 +222,7 @@ struct Stable16 : Module
 		}
 
 		// Reset
-		if (resetTrigger.process(params[RESET_PARAM].value + inputs[RESET_INPUT].value))
+		if (resetTrigger.process(params[RESET_PARAM].getValue() + inputs[RESET_INPUT].getVoltage()))
 		{
 			resetStepIndices();
 		}
@@ -232,7 +232,7 @@ struct Stable16 : Module
 		// Steps
 		for (int i = 0; i < 128; i++)
 		{
-			if (stepTrigger[i].process(params[STEP_PARAM + i].value))
+			if (stepTrigger[i].process(params[STEP_PARAM + i].getValue()))
 			{
 				stepValue[i] = !stepValue[i];
 			}
@@ -247,10 +247,10 @@ struct Stable16 : Module
 		}
 
 		// Outputs
-		// outputs[GATES_OUTPUT].value = (gateIn && gates[index]) ? 10.0f : 0.0f;
+		// outputs[GATES_OUTPUT].setVoltage((gateIn && gates[index]) ? 10.0f : 0.0f);
 		for (int y = 0; y < 8; y++)
 		{
-			outputs[ROW_OUTPUT + y].value = (gateIn && stepValue[getMatrixPosition(y)]) ? 10.0f : 0.0f;
+			outputs[ROW_OUTPUT + y].setVoltage((gateIn && stepValue[getMatrixPosition(y)]) ? 10.0f : 0.0f);
 			lights[ROW_LIGHTS + y].value = outputs[ROW_OUTPUT + y].value / 10.0f;
 		}
 
