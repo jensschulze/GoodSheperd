@@ -90,9 +90,9 @@ struct HurdleWidget : ModuleWidget
 		addChild(createWidget<ScrewSilver>(Vec(RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
 		addChild(createWidget<ScrewSilver>(Vec(box.size.x - 2 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
 
-		addInput(createPort<PJ301MPort>(Vec(11, 97), PortWidget::INPUT, module, Hurdle::PROBABILITY_INPUT));
-		addInput(createPort<PJ301MPort>(Vec(11, 237), PortWidget::INPUT, module, Hurdle::GATE_INPUT));
-		addOutput(createPort<PJ301MPort>(Vec(11, 293), PortWidget::OUTPUT, module, Hurdle::GATE_OUTPUT));
+		addInput(createInput<PJ301MPort>(Vec(11, 97), module, Hurdle::PROBABILITY_INPUT));
+		addInput(createInput<PJ301MPort>(Vec(11, 237), module, Hurdle::GATE_INPUT));
+		addOutput(createOutput<PJ301MPort>(Vec(11, 293), module, Hurdle::GATE_OUTPUT));
 	}
 };
 

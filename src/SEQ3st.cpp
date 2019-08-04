@@ -270,14 +270,14 @@ struct SEQ3stWidget : ModuleWidget
 		addChild(createLight<MediumLight<GreenLight>>(Vec(306.4f, 59.4f), module, SEQ3st::ROW_LIGHTS + 2));
 
 		static const float portX[8] = {20, 60, 100, 140, 180, 220, 260, 300};
-		addInput(createPort<PJ301MPort>(Vec(portX[0] - 1, 98), PortWidget::INPUT, module, SEQ3st::CLOCK_INPUT));
-		addInput(createPort<PJ301MPort>(Vec(portX[1] - 1, 98), PortWidget::INPUT, module, SEQ3st::EXT_CLOCK_INPUT));
-		addInput(createPort<PJ301MPort>(Vec(portX[2] - 1, 98), PortWidget::INPUT, module, SEQ3st::RESET_INPUT));
-		addInput(createPort<PJ301MPort>(Vec(portX[3] - 1, 98), PortWidget::INPUT, module, SEQ3st::STEPS_INPUT));
-		addOutput(createPort<PJ301MPort>(Vec(portX[4] - 1, 98), PortWidget::OUTPUT, module, SEQ3st::GATES_OUTPUT));
-		addOutput(createPort<PJ301MPort>(Vec(portX[5] - 1, 98), PortWidget::OUTPUT, module, SEQ3st::ROW1_OUTPUT));
-		addOutput(createPort<PJ301MPort>(Vec(portX[6] - 1, 98), PortWidget::OUTPUT, module, SEQ3st::ROW2_OUTPUT));
-		addOutput(createPort<PJ301MPort>(Vec(portX[7] - 1, 98), PortWidget::OUTPUT, module, SEQ3st::ROW3_OUTPUT));
+		addInput(createInput<PJ301MPort>(Vec(portX[0] - 1, 98), module, SEQ3st::CLOCK_INPUT));
+		addInput(createInput<PJ301MPort>(Vec(portX[1] - 1, 98), module, SEQ3st::EXT_CLOCK_INPUT));
+		addInput(createInput<PJ301MPort>(Vec(portX[2] - 1, 98), module, SEQ3st::RESET_INPUT));
+		addInput(createInput<PJ301MPort>(Vec(portX[3] - 1, 98), module, SEQ3st::STEPS_INPUT));
+		addOutput(createOutput<PJ301MPort>(Vec(portX[4] - 1, 98), module, SEQ3st::GATES_OUTPUT));
+		addOutput(createOutput<PJ301MPort>(Vec(portX[5] - 1, 98), module, SEQ3st::ROW1_OUTPUT));
+		addOutput(createOutput<PJ301MPort>(Vec(portX[6] - 1, 98), module, SEQ3st::ROW2_OUTPUT));
+		addOutput(createOutput<PJ301MPort>(Vec(portX[7] - 1, 98), module, SEQ3st::ROW3_OUTPUT));
 
 		for (int i = 0; i < 8; i++)
 		{
@@ -286,13 +286,13 @@ struct SEQ3stWidget : ModuleWidget
 			addParam(createParam<Rogan1PRed>(Vec(portX[i] - 6, 240), module, SEQ3st::ROW3_PARAM + i, 0.0f, 10.0f, 0.0f));
 			addParam(createParam<LEDButton>(Vec(portX[i] + 2, 278 - 1), module, SEQ3st::GATE_PARAM + i, 0.0f, 1.0f, 0.0f));
 			addChild(createLight<MediumLight<GreenLight>>(Vec(portX[i] + 6.4f, 281.4f), module, SEQ3st::GATE_LIGHTS + i));
-			addOutput(createPort<PJ301MPort>(Vec(portX[i] - 1, 307), PortWidget::OUTPUT, module, SEQ3st::GATE_OUTPUT + i));
+			addOutput(createOutput<PJ301MPort>(Vec(portX[i] - 1, 307), module, SEQ3st::GATE_OUTPUT + i));
 		}
-		addOutput(createPort<PJ301MPort>(Vec(360, 162), PortWidget::OUTPUT, module, SEQ3st::GATE_ROW1_OUTPUT));
+		addOutput(createOutput<PJ301MPort>(Vec(360, 162), module, SEQ3st::GATE_ROW1_OUTPUT));
 		addChild(createLight<MediumLight<GreenLight>>(Vec(335, 169), module, SEQ3st::GATE_ROW1_LIGHT));
-		addOutput(createPort<PJ301MPort>(Vec(360, 203), PortWidget::OUTPUT, module, SEQ3st::GATE_ROW2_OUTPUT));
+		addOutput(createOutput<PJ301MPort>(Vec(360, 203), module, SEQ3st::GATE_ROW2_OUTPUT));
 		addChild(createLight<MediumLight<GreenLight>>(Vec(335, 210), module, SEQ3st::GATE_ROW2_LIGHT));
-		addOutput(createPort<PJ301MPort>(Vec(360, 244), PortWidget::OUTPUT, module, SEQ3st::GATE_ROW3_OUTPUT));
+		addOutput(createOutput<PJ301MPort>(Vec(360, 244), module, SEQ3st::GATE_ROW3_OUTPUT));
 		addChild(createLight<MediumLight<GreenLight>>(Vec(335, 252), module, SEQ3st::GATE_ROW3_LIGHT));
 	}
 };
