@@ -252,7 +252,7 @@
      inkscape:pageshadow="2"
      inkscape:zoom="1.69"
      inkscape:cx="-54.408285"
-     inkscape:cy="190"
+     inkscape:cy="284.67456"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
@@ -283,11 +283,13 @@
      inkscape:groupmode="layer"
      id="layer1"
      transform="translate(0,-196.45832)">
-    <path
-       style="opacity:1;vector-effect:none;fill:#212e33;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:0.3437039;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;paint-order:normal;marker-start:url(#marker2354)"
-       d="M 0,297 H 11.906251 V 196.45831 H 0 Z"
-       id="rect817"
-       inkscape:connector-curvature="0" />
+    <rect
+       style="opacity:1;fill:#445271;fill-opacity:1;stroke:none;stroke-width:0.34400001;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="rect889"
+       width="11.906251"
+       height="100.54167"
+       x="0"
+       y="196.45833" />
     <rect
        style="fill:#445271;fill-opacity:1;stroke:#445271;stroke-width:0.29900867;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        id="rect1060"
