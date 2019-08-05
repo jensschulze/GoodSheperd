@@ -9,3 +9,6 @@ extern Plugin *pluginInstance;
 extern Model *modelHurdle;
 extern Model *modelSEQ3st;
 extern Model *modelStable16;
+extern Model *modelStumble;
+
+NVGcolor prepareDisplay(NVGcontext *vg, Rect *box, int fontSize);

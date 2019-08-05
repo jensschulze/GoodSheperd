@@ -37,6 +37,15 @@
         "Sequencer",
         "Random"
       ]
+    },
+    {
+      "slug": "Stumble",
+      "name": "Stumble",
+      "description": "",
+      "tags": [
+        "Switch",
+        "Random"
+      ]
     }
   ]
 }
