@@ -299,30 +299,30 @@ struct Stable16Widget : ModuleWidget
 		{
 			for (int x = 0; x < 16; x++)
 			{
-				addParam(createParam<LEDButton>(Vec(stepGridX[x] - 9.0f, stepGridY[y] - 9.0f), module, Stable16::STEP_PARAM + x + 16 * y)); //36px
-				addChild(createLight<MediumLight<GreenLight>>(Vec(stepGridX[x] - 4.6f, stepGridY[y] - 4.6f), module, Stable16::STEP_LIGHT + x + 16 * y));	 // 20px
+				addParam(createParamCentered<LEDButton>(Vec(stepGridX[x], stepGridY[y]), module, Stable16::STEP_PARAM + x + 16 * y)); //36px
+				addChild(createLightCentered<MediumLight<GreenLight>>(Vec(stepGridX[x], stepGridY[y]), module, Stable16::STEP_LIGHT + x + 16 * y));	 // 20px
 			}
 		}
 
 		for (int y = 0; y < 8; y++)
 		{
-			addOutput(createOutput<PJ301MPort>(Vec(gatesOutX - 12.5f, stepGridY[y] - 12.5f), module, Stable16::ROW_OUTPUT + y));				  // 50px
-			addChild(createLight<MediumLight<GreenLight>>(Vec(gatesOutX - 27.0f - 5.0f, stepGridY[y] - 5.0f), module, Stable16::ROW_LIGHTS + y)); // 20px
+			addOutput(createOutputCentered<PJ301MPort>(Vec(gatesOutX, stepGridY[y]), module, Stable16::ROW_OUTPUT + y));				  // 50px
+			addChild(createLightCentered<MediumLight<GreenLight>>(Vec(gatesOutX - 27.0f, stepGridY[y]), module, Stable16::ROW_LIGHTS + y)); // 20px
 
-			addParam(createParam<RoundBlackSnapKnob>(Vec(startKnobsX - 16.0f, stepGridY[y] - 16.0f), module, Stable16::START_PARAM + y)); // 64px
-			addParam(createParam<RoundBlackSnapKnob>(Vec(endKnobsX - 16.0f, stepGridY[y] - 16.0f), module, Stable16::END_PARAM + y));	// 64px
+			addParam(createParamCentered<RoundBlackSnapKnob>(Vec(startKnobsX, stepGridY[y]), module, Stable16::START_PARAM + y)); // 64px
+			addParam(createParamCentered<RoundBlackSnapKnob>(Vec(endKnobsX, stepGridY[y]), module, Stable16::END_PARAM + y));	// 64px
 		}
 
 		static const float othersX = 492;
-		addParam(createParam<Rogan1PGreen>(Vec(othersX - 16.0f, stepGridY[0] - 16.0f), module, Stable16::CLOCK_PARAM));
-		addInput(createInput<PJ301MPort>(Vec(othersX - 12.5f, stepGridY[1] - 12.5f), module, Stable16::CLOCK_INPUT));
-		addInput(createInput<PJ301MPort>(Vec(othersX - 12.5f, stepGridY[2] - 12.5f), module, Stable16::EXT_CLOCK_INPUT));
-		addChild(createLight<MediumLight<GreenLight>>(Vec(othersX - 4.6f, stepGridY[3] - 9.0f), module, Stable16::GATES_LIGHT));
-		addParam(createParam<LEDButton>(Vec(othersX - 9.0f, stepGridY[4] - 9.0f), module, Stable16::RUN_PARAM));
-		addChild(createLight<MediumLight<GreenLight>>(Vec(othersX - 4.6f, stepGridY[4] - 4.6f), module, Stable16::RUNNING_LIGHT));
-		addParam(createParam<LEDButton>(Vec(othersX - 9.0f, stepGridY[5] - 9.0f), module, Stable16::RESET_PARAM));
-		addChild(createLight<MediumLight<GreenLight>>(Vec(othersX - 4.6f, stepGridY[5] - 4.6f), module, Stable16::RESET_LIGHT));
-		addInput(createInput<PJ301MPort>(Vec(othersX - 12.5f, stepGridY[6] - 12.5f), module, Stable16::RESET_INPUT));
+		addParam(createParamCentered<Rogan1PGreen>(Vec(othersX, stepGridY[0]), module, Stable16::CLOCK_PARAM));
+		addInput(createInputCentered<PJ301MPort>(Vec(othersX, stepGridY[1]), module, Stable16::CLOCK_INPUT));
+		addInput(createInputCentered<PJ301MPort>(Vec(othersX, stepGridY[2]), module, Stable16::EXT_CLOCK_INPUT));
+		addChild(createLightCentered<MediumLight<GreenLight>>(Vec(othersX, stepGridY[3]), module, Stable16::GATES_LIGHT));
+		addParam(createParamCentered<LEDButton>(Vec(othersX, stepGridY[4]), module, Stable16::RUN_PARAM));
+		addChild(createLightCentered<MediumLight<GreenLight>>(Vec(othersX, stepGridY[4]), module, Stable16::RUNNING_LIGHT));
+		addParam(createParamCentered<LEDButton>(Vec(othersX, stepGridY[5]), module, Stable16::RESET_PARAM));
+		addChild(createLightCentered<MediumLight<GreenLight>>(Vec(othersX, stepGridY[5]), module, Stable16::RESET_LIGHT));
+		addInput(createInputCentered<PJ301MPort>(Vec(othersX, stepGridY[6]), module, Stable16::RESET_INPUT));
 	}
 };
 
