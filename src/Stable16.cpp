@@ -36,8 +36,6 @@ struct Stable16 : Module
 		GATES_LIGHT,
 		ENUMS(ROW_LIGHTS, 8),
 		ENUMS(GATE_LIGHTS, 8),
-		ENUMS(NUDGE_LEFT_LIGHT, 8),
-		ENUMS(NUDGE_RIGHT_LIGHT, 8),
 		NUM_LIGHTS
 	};
 
@@ -295,8 +293,8 @@ struct Stable16 : Module
 				nudgeRowRight(y);
 			}
 
-			lights[NUDGE_LEFT_PARAM + y].setSmoothBrightness(nudgeLeftTriggers[y].isHigh(), args.sampleTime * lightDivider.getDivision());
-			lights[NUDGE_RIGHT_PARAM + y].setSmoothBrightness(nudgeRightTriggers[y].isHigh(), args.sampleTime * lightDivider.getDivision());
+			// lights[NUDGE_LEFT_PARAM + y].setSmoothBrightness(nudgeLeftTriggers[y].isHigh(), args.sampleTime * lightDivider.getDivision());
+			// lights[NUDGE_RIGHT_PARAM + y].setSmoothBrightness(nudgeRightTriggers[y].isHigh(), args.sampleTime * lightDivider.getDivision());
 		}
 
 		// Steps
@@ -364,10 +362,8 @@ struct Stable16Widget : ModuleWidget
 			addParam(createParamCentered<RoundBlackSnapKnob>(Vec(startKnobsX, stepGridY[y]), module, Stable16::START_PARAM + y)); // 64px
 			addParam(createParamCentered<RoundBlackSnapKnob>(Vec(endKnobsX, stepGridY[y]), module, Stable16::END_PARAM + y));	 // 64px
 
-			addParam(createParamCentered<LEDButton>(Vec(nudgeLeftButtonX, stepGridY[y]), module, Stable16::NUDGE_LEFT_PARAM + y));
-			addChild(createLightCentered<MediumLight<RedLight>>(Vec(nudgeLeftButtonX, stepGridY[y]), module, Stable16::NUDGE_LEFT_LIGHT + y));
-			addParam(createParamCentered<LEDButton>(Vec(nudgeRightButtonX, stepGridY[y]), module, Stable16::NUDGE_RIGHT_PARAM + y));
-			addChild(createLightCentered<MediumLight<RedLight>>(Vec(nudgeRightButtonX, stepGridY[y]), module, Stable16::NUDGE_RIGHT_LIGHT + y));
+			addParam(createParamCentered<ArrowLeft>(Vec(nudgeLeftButtonX, stepGridY[y]), module, Stable16::NUDGE_LEFT_PARAM + y));
+			addParam(createParamCentered<ArrowRight>(Vec(nudgeRightButtonX, stepGridY[y]), module, Stable16::NUDGE_RIGHT_PARAM + y));
 		}
 
 		static const float othersX = 492;
