@@ -2,39 +2,38 @@
 
 struct Stable16 : Module
 {
-	enum ParamIds
-	{
+	enum ParamIds {
 		CLOCK_PARAM,
 		RUN_PARAM,
 		RESET_PARAM,
 		ENUMS(STEP_PARAM, 128),
 		ENUMS(START_PARAM, 8),
 		ENUMS(END_PARAM, 8),
-		ENUMS(MOVE_MODE_PARAM, 8),
+		ENUMS(NUDGE_LEFT_PARAM, 8),
+		ENUMS(NUDGE_RIGHT_PARAM, 8),
 		NUM_PARAMS
 	};
-	enum InputIds
-	{
+	enum InputIds {
 		CLOCK_INPUT,
 		EXT_CLOCK_INPUT,
 		RESET_INPUT,
 		NUM_INPUTS
 	};
-	enum OutputIds
-	{
+	enum OutputIds {
 		GATES_OUTPUT,
 		ENUMS(ROW_OUTPUT, 8),
 		ENUMS(GATE_OUTPUT, 8),
 		NUM_OUTPUTS
 	};
-	enum LightIds
-	{
+	enum LightIds {
 		ENUMS(STEP_LIGHT, 128),
 		RUNNING_LIGHT,
 		RESET_LIGHT,
 		GATES_LIGHT,
 		ENUMS(ROW_LIGHTS, 8),
 		ENUMS(GATE_LIGHTS, 8),
+		ENUMS(NUDGE_LEFT_LIGHT, 8),
+		ENUMS(NUDGE_RIGHT_LIGHT, 8),
 		NUM_LIGHTS
 	};
 
@@ -44,6 +43,8 @@ struct Stable16 : Module
 	dsp::SchmittTrigger stepTrigger[128];
 	dsp::SchmittTrigger resetTrigger;
 	dsp::SchmittTrigger gateTriggers[8];
+	dsp::SchmittTrigger nudgeLeftTriggers[8];
+	dsp::SchmittTrigger nudgeRightTriggers[8];
 	/** Phase of internal LFO */
 	float phase = 0.f;
 	bool stepValue[128] = {};
@@ -55,18 +56,17 @@ struct Stable16 : Module
 	Stable16()
 	{
 		config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);
-		for (int x = 0; x < 16; x++)
-		{
-			for (int y = 0; y < 8; y++)
-			{
+		for (int x = 0; x < 16; x++) {
+			for (int y = 0; y < 8; y++) {
 				configParam(Stable16::STEP_PARAM + x + 16 * y, 0.0f, 1.0f, 0.0f);
 			}
 		}
 
-		for (int y = 0; y < 8; y++)
-		{
+		for (int y = 0; y < 8; y++) {
 			configParam(Stable16::START_PARAM + y, 0.0f, 15.0f, 0.0f);
 			configParam(Stable16::END_PARAM + y, 0.0f, 15.0f, 15.0f);
+			configParam(Stable16::NUDGE_LEFT_PARAM + y, 0.0f, 1.0f, 0.0f);
+			configParam(Stable16::NUDGE_RIGHT_PARAM + y, 0.0f, 1.0f, 0.0f);
 		}
 		configParam(Stable16::CLOCK_PARAM, -2.0f, 6.0f, 2.0f);
 		configParam(Stable16::RUN_PARAM, 0.0f, 1.0f, 0.0f);
@@ -77,18 +77,16 @@ struct Stable16 : Module
 
 	void onReset() override
 	{
-		for (int i = 0; i < 8; i++)
-		{
+		for (int i = 0; i < 8; i++) {
 			rowStepIndex[i] = 0;
 		}
 	}
 
 	void onRandomize() override
 	{
-		// for (int i = 0; i < 8; i++)
-		// {
-		// 	gates[i] = (random::uniform() > 0.5f);
-		// }
+		for (int i = 0; i < 128; i++) {
+			stepValue[i] = (random::uniform() > 0.5f);
+		}
 	}
 
 	json_t *dataToJson() override
@@ -100,24 +98,21 @@ struct Stable16 : Module
 
 		// steps
 		json_t *stepsJ = json_array();
-		for (int i = 0; i < 128; i++)
-		{
+		for (int i = 0; i < 128; i++) {
 			json_array_insert_new(stepsJ, i, json_boolean(stepValue[i]));
 		}
 		json_object_set_new(rootJ, "steps", stepsJ);
 
 		// position
 		json_t *rowPositionJ = json_array();
-		for (int i = 0; i < 8; i++)
-		{
+		for (int i = 0; i < 8; i++) {
 			json_array_insert_new(rowPositionJ, i, json_integer(rowStepIndex[i]));
 		}
 		json_object_set_new(rootJ, "positions", rowPositionJ);
 
 		// increment
 		json_t *rowStepIncrementJ = json_array();
-		for (int i = 0; i < 8; i++)
-		{
+		for (int i = 0; i < 8; i++) {
 			json_array_insert_new(rowStepIncrementJ, i, json_integer(rowStepIncrement[i]));
 		}
 		json_object_set_new(rootJ, "increments", rowStepIncrementJ);
@@ -129,20 +124,16 @@ struct Stable16 : Module
 	{
 		// running
 		json_t *runningJ = json_object_get(rootJ, "running");
-		if (runningJ)
-		{
+		if (runningJ) {
 			running = json_is_true(runningJ);
 		}
 
 		// steps
 		json_t *stepsJ = json_object_get(rootJ, "steps");
-		if (stepsJ)
-		{
-			for (int i = 0; i < 128; i++)
-			{
+		if (stepsJ) {
+			for (int i = 0; i < 128; i++) {
 				json_t *stepJ = json_array_get(stepsJ, i);
-				if (stepJ)
-				{
+				if (stepJ) {
 					stepValue[i] = json_boolean_value(stepJ);
 				}
 			}
@@ -150,13 +141,10 @@ struct Stable16 : Module
 
 		// position
 		json_t *positionsJ = json_object_get(rootJ, "position");
-		if (positionsJ)
-		{
-			for (int i = 0; i < 8; i++)
-			{
+		if (positionsJ) {
+			for (int i = 0; i < 8; i++) {
 				json_t *positionJ = json_array_get(positionsJ, i);
-				if (positionJ)
-				{
+				if (positionJ) {
 					rowStepIndex[i] = json_integer_value(positionJ);
 				}
 			}
@@ -164,13 +152,10 @@ struct Stable16 : Module
 
 		// increment (rowStepIncrement)
 		json_t *incrementsJ = json_object_get(rootJ, "increment");
-		if (incrementsJ)
-		{
-			for (int i = 0; i < 8; i++)
-			{
+		if (incrementsJ) {
+			for (int i = 0; i < 8; i++) {
 				json_t *incrementJ = json_array_get(incrementsJ, i);
-				if (incrementJ)
-				{
+				if (incrementJ) {
 					rowStepIncrement[i] = json_integer_value(incrementJ);
 				}
 			}
@@ -181,8 +166,7 @@ struct Stable16 : Module
 	{
 		phase = 0.f;
 
-		for (int row = 0; row < 8; row++)
-		{
+		for (int row = 0; row < 8; row++) {
 			rowStepIndex[row] = (int)params[START_PARAM + row].getValue();
 		}
 	}
@@ -194,11 +178,9 @@ struct Stable16 : Module
 
 	void calculateNextIndex()
 	{
-		for (int row = 0; row < 8; row++)
-		{
+		for (int row = 0; row < 8; row++) {
 			rowStepIndex[row] = rowStepIndex[row] + rowStepIncrement[row];
-			if (rowStepIndex[row] > (int)params[END_PARAM + row].getValue())
-			{
+			if (rowStepIndex[row] > (int)params[END_PARAM + row].getValue()) {
 				rowStepIndex[row] = (int)params[START_PARAM + row].getValue();
 			}
 		}
@@ -206,35 +188,50 @@ struct Stable16 : Module
 		phase = 0.f;
 	}
 
+    void nudgeRowLeft(int row) {
+		int start = 0 + row * 16;
+		int end = 15 + row * 16;
+
+		bool tempValue = stepValue[start];
+		for (int i = start; i < end; i++) {
+			stepValue[i] = stepValue[i + 1];
+		}
+		stepValue[end] = tempValue;
+	}
+
+    void nudgeRowRight(int row) {
+		int start = 0 + row * 16;
+		int end = 15 + row * 16;
+
+		bool tempValue = stepValue[end];
+		for (int i = end; i > start; i--) {
+			stepValue[i] = stepValue[i - 1];
+		}
+		stepValue[start] = tempValue;
+	}
+
 	void process(const ProcessArgs &args) override
 	{
 		// Run
-		if (runningTrigger.process(params[RUN_PARAM].getValue()))
-		{
+		if (runningTrigger.process(params[RUN_PARAM].getValue())) {
 			running = !running;
 		}
 		lights[RUNNING_LIGHT].value = (running);
 
 		bool gateIn = false;
 
-		if (running)
-		{
-			if (inputs[EXT_CLOCK_INPUT].isConnected())
-			{
+		if (running) {
+			if (inputs[EXT_CLOCK_INPUT].isConnected()) {
 				// External clock
-				if (clockTrigger.process(inputs[EXT_CLOCK_INPUT].getVoltage()))
-				{
+				if (clockTrigger.process(inputs[EXT_CLOCK_INPUT].getVoltage())) {
 					calculateNextIndex();
 				}
 				gateIn = clockTrigger.isHigh();
-			}
-			else
-			{
+			} else {
 				// Internal clock
 				float clockTime = powf(2.0f, params[CLOCK_PARAM].getValue() + inputs[CLOCK_INPUT].getVoltage());
 				phase += clockTime * args.sampleTime;
-				if (phase >= 1.0f)
-				{
+				if (phase >= 1.0f) {
 					calculateNextIndex();
 				}
 				gateIn = (phase < 0.5f);
@@ -242,18 +239,29 @@ struct Stable16 : Module
 		}
 
 		// Reset
-		if (resetTrigger.process(params[RESET_PARAM].getValue() + inputs[RESET_INPUT].getVoltage()))
-		{
+		if (resetTrigger.process(params[RESET_PARAM].getValue() + inputs[RESET_INPUT].getVoltage())) {
 			resetStepIndices();
 		}
 
 		lights[RESET_LIGHT].setSmoothBrightness(resetTrigger.isHigh(), args.sampleTime * lightDivider.getDivision());
 
+ 		// Nudge
+		for (int y = 0; y < 8; y++) {
+			if (nudgeLeftTriggers[y].process(params[NUDGE_LEFT_PARAM + y].getValue())) {
+				nudgeRowLeft(y);
+			}
+
+			if (nudgeRightTriggers[y].process(params[NUDGE_RIGHT_PARAM + y].getValue())) {
+				nudgeRowRight(y);
+			}
+
+			lights[NUDGE_LEFT_PARAM + y].setSmoothBrightness(nudgeLeftTriggers[y].isHigh(), args.sampleTime * lightDivider.getDivision());
+			lights[NUDGE_RIGHT_PARAM + y].setSmoothBrightness(nudgeRightTriggers[y].isHigh(), args.sampleTime * lightDivider.getDivision());
+		}
+       
 		// Steps
-		for (int i = 0; i < 128; i++)
-		{
-			if (stepTrigger[i].process(params[STEP_PARAM + i].getValue()))
-			{
+		for (int i = 0; i < 128; i++) {
+			if (stepTrigger[i].process(params[STEP_PARAM + i].getValue())) {
 				stepValue[i] = !stepValue[i];
 			}
 
@@ -261,15 +269,12 @@ struct Stable16 : Module
 		}
 
 		// Cursor Position
-		for (int y = 0; y < 8; y++)
-		{
+		for (int y = 0; y < 8; y++) {
 			lights[STEP_LIGHT + getMatrixPosition(y)].setSmoothBrightness(0.5f, args.sampleTime * lightDivider.getDivision());
 		}
 
 		// Outputs
-		// outputs[GATES_OUTPUT].setVoltage((gateIn && gates[index]) ? 10.0f : 0.0f);
-		for (int y = 0; y < 8; y++)
-		{
+		for (int y = 0; y < 8; y++) {
 			outputs[ROW_OUTPUT + y].setVoltage((gateIn && stepValue[getMatrixPosition(y)]) ? 10.0f : 0.0f);
 			lights[ROW_LIGHTS + y].value = outputs[ROW_OUTPUT + y].value / 10.0f;
 		}
@@ -295,22 +300,27 @@ struct Stable16Widget : ModuleWidget
 		static const float gatesOutX = 372.0f;
 		static const float startKnobsX = 412.0f;
 		static const float endKnobsX = 452.0f;
-		for (int y = 0; y < 8; y++)
-		{
-			for (int x = 0; x < 16; x++)
-			{
+		static const float nudgeLeftButtonX = 532.0f - 8.0f;
+		static const float nudgeRightButtonX = 532.0f + 8.0f;
+
+		for (int y = 0; y < 8; y++) {
+			for (int x = 0; x < 16; x++) {
 				addParam(createParamCentered<LEDButton>(Vec(stepGridX[x], stepGridY[y]), module, Stable16::STEP_PARAM + x + 16 * y)); //36px
 				addChild(createLightCentered<MediumLight<GreenLight>>(Vec(stepGridX[x], stepGridY[y]), module, Stable16::STEP_LIGHT + x + 16 * y));	 // 20px
 			}
 		}
 
-		for (int y = 0; y < 8; y++)
-		{
+		for (int y = 0; y < 8; y++) {
 			addOutput(createOutputCentered<PJ301MPort>(Vec(gatesOutX, stepGridY[y]), module, Stable16::ROW_OUTPUT + y));				  // 50px
 			addChild(createLightCentered<MediumLight<GreenLight>>(Vec(gatesOutX - 27.0f, stepGridY[y]), module, Stable16::ROW_LIGHTS + y)); // 20px
 
 			addParam(createParamCentered<RoundBlackSnapKnob>(Vec(startKnobsX, stepGridY[y]), module, Stable16::START_PARAM + y)); // 64px
 			addParam(createParamCentered<RoundBlackSnapKnob>(Vec(endKnobsX, stepGridY[y]), module, Stable16::END_PARAM + y));	// 64px
+
+			addParam(createParamCentered<LEDButton>(Vec(nudgeLeftButtonX, stepGridY[y]), module, Stable16::NUDGE_LEFT_PARAM + y));
+			addChild(createLightCentered<MediumLight<RedLight>>(Vec(nudgeLeftButtonX, stepGridY[y]), module, Stable16::NUDGE_LEFT_LIGHT + y));
+			addParam(createParamCentered<LEDButton>(Vec(nudgeRightButtonX, stepGridY[y]), module, Stable16::NUDGE_RIGHT_PARAM + y));
+			addChild(createLightCentered<MediumLight<RedLight>>(Vec(nudgeRightButtonX, stepGridY[y]), module, Stable16::NUDGE_RIGHT_LIGHT + y));
 		}
 
 		static const float othersX = 492;
