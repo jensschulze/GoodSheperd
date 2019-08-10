@@ -1,6 +1,14 @@
 # GoodSheperd VCV Rack plugins
 
-A collection of plugins I needed but could not find.
+A collection of plugins I use for live performances. And yes, it’s a typo but I won’t fix it.
+
+## Stable16
+
+![Stable16](./doc/stable16.png)
+
+An eight track gate sequencer with independent start/end points and nudge functionality.
+
+**Caveat:** it is very likely that this thing will grow a few more units in the foreseeable future. So if you use it in your patches please give it some space. ;)
 
 ## Hurdle
 
