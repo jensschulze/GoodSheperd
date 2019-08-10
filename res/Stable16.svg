@@ -26,8 +26,8 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="4"
-     inkscape:cx="492.62821"
-     inkscape:cy="320"
+     inkscape:cx="407.43032"
+     inkscape:cy="62.894737"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="true"
@@ -238,7 +238,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -250,7 +250,7 @@
     <path
        inkscape:connector-curvature="0"
        id="path33453"
-       d="M 26.543498,161.30655 H 181.32475 V 261.84821 H 26.543498 Z m 0,0"
+       d="M 26.874227,161.30655 H 181.65548 V 261.84821 H 26.874227 Z m 0,0"
        style="fill:#212e33;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:0.35825062" />
     <rect
        style="opacity:1;fill:#4a5356;fill-opacity:1;stroke:#8e9dbc;stroke-width:0.37070268;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
@@ -896,7 +896,7 @@
     <path
        inkscape:connector-curvature="0"
        id="path1698"
-       d="m 115.53836,173.47738 v 83.60833"
+       d="m 114.48001,173.47738 v 83.60833"
        style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.18970624;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
     <g
        aria-label="Nudge"
@@ -922,6 +922,28 @@
          d="m 170.16676,171.79614 q 0,0.17226 0.0992,0.26183 0.0923,0.0909 0.24254,0.0909 0.17501,0 0.31281,-0.13918 v 0 l 0.20808,0.17777 q -0.2191,0.23426 -0.51538,0.23151 -0.113,0 -0.22049,-0.0331 -0.0537,-0.0179 -0.10473,-0.0482 -0.0537,-0.0262 -0.1006,-0.0648 -0.0909,-0.0799 -0.14745,-0.22325 -0.062,-0.1378 -0.062,-0.35829 0,-0.21221 0.0538,-0.35277 0.0537,-0.14332 0.1378,-0.226 0.0854,-0.0841 0.19155,-0.12127 0.10473,-0.0372 0.2067,-0.0372 0.24529,0.003 0.41479,0.16123 0.17226,0.16123 0.17501,0.44373 v 0.23702 z m 0.60358,-0.23702 q -0.006,-0.16674 -0.0896,-0.25218 -0.0827,-0.0813 -0.21222,-0.0813 -0.12953,0 -0.21221,0.0813 -0.0813,0.0854 -0.0896,0.25218 z"
          style="fill:#e7e7e7;fill-opacity:1;stroke-width:0.26458332px"
          id="path1690" />
+    </g>
+    <g
+       aria-label="i"
+       style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:2.82222223px;line-height:125%;font-family:'DIN Alternate';-inkscape-font-specification:'DIN Alternate, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#e7e7e7;fill-opacity:1;stroke:none;stroke-width:0.26458332px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       id="text974"
+       transform="translate(1.5874999,0.198437)">
+      <path
+         d="m 158.23569,250.16521 h 0.28801 v 1.4304 h -0.28801 z m 0,-0.57878 h 0.28801 v 0.28801 h -0.28801 z"
+         style="fill:#e7e7e7;fill-opacity:1;stroke-width:0.26458332px"
+         id="path983"
+         inkscape:connector-curvature="0" />
+    </g>
+    <g
+       aria-label="a"
+       style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:2.82222223px;line-height:125%;font-family:'DIN Alternate';-inkscape-font-specification:'DIN Alternate, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#e7e7e7;fill-opacity:1;stroke:none;stroke-width:0.26458332px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       id="text978"
+       transform="translate(1.5874999)">
+      <path
+         d="m 158.71388,254.44541 h -0.006 q -0.04,0.073 -0.12402,0.10749 -0.0827,0.0358 -0.22875,0.0358 -0.23978,-0.003 -0.36932,-0.12678 -0.13642,-0.12127 -0.13642,-0.31006 0,-0.18053 0.11851,-0.29904 0.11851,-0.12126 0.34726,-0.12402 h 0.39826 v -0.15021 q 0.003,-0.18879 -0.29353,-0.18328 -0.10748,0 -0.1695,0.0221 -0.0648,0.0262 -0.10197,0.0882 v 0 l -0.226,-0.17226 q 0.16399,-0.21497 0.48369,-0.20946 0.2701,-0.003 0.43133,0.10198 0.16123,0.10748 0.16399,0.36931 v 0.97703 h -0.28801 z m 0,-0.47956 h -0.34451 q -0.25081,0.006 -0.24805,0.17226 0,0.073 0.0648,0.12402 0.062,0.0565 0.20532,0.0565 0.18053,0.003 0.25494,-0.0427 0.0675,-0.0455 0.0675,-0.2067 z"
+         style="fill:#e7e7e7;fill-opacity:1;stroke-width:0.26458332px"
+         id="path980"
+         inkscape:connector-curvature="0" />
     </g>
   </g>
   <g
