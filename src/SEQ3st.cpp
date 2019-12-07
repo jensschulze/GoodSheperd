@@ -12,6 +12,7 @@ struct SEQ3st : Module
 		ENUMS(ROW2_PARAM, 8),
 		ENUMS(ROW3_PARAM, 8),
 		ENUMS(GATE_PARAM, 8),
+		SHAPE_PARAM,
 		NUM_PARAMS
 	};
 	enum InputIds
@@ -20,6 +21,7 @@ struct SEQ3st : Module
 		EXT_CLOCK_INPUT,
 		RESET_INPUT,
 		STEPS_INPUT,
+		SHAPE_INPUT,
 		NUM_INPUTS
 	};
 	enum OutputIds
@@ -59,22 +61,23 @@ struct SEQ3st : Module
 	bool gateRow1IsOpen = false;
 	bool gateRow2IsOpen = false;
 	bool gateRow3IsOpen = false;
-
+	const float shapeExponent[9] = {0.0625, 0.125, 0.25, 0.5, 1.f, 2.f, 4.f, 8.f, 16.f};
 	dsp::ClockDivider lightDivider;
 
 	SEQ3st()
 	{
 		config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);
-		configParam(SEQ3st::CLOCK_PARAM, -2.0f, 6.0f, 2.0f);
-		configParam(SEQ3st::RUN_PARAM, 0.0f, 1.0f, 0.0f);
-		configParam(SEQ3st::RESET_PARAM, 0.0f, 1.0f, 0.0f);
-		configParam(SEQ3st::STEPS_PARAM, 1.0f, 8.0f, 8.0f);
+		configParam(SEQ3st::CLOCK_PARAM, -2.0f, 6.0f, 2.0f, "Clock");
+		configParam(SEQ3st::RUN_PARAM, 0.0f, 1.0f, 0.0f, "Run");
+		configParam(SEQ3st::RESET_PARAM, 0.0f, 1.0f, 0.0f, "Reset");
+		configParam(SEQ3st::STEPS_PARAM, 1.0f, 8.0f, 8.0f, "Steps");
+		configParam(SEQ3st::SHAPE_PARAM, -4.f, 4.f, 0.f, "Shape");
 		for (int i = 0; i < 8; i++)
 		{
-			configParam(SEQ3st::ROW1_PARAM + i, 0.0f, 10.0f, 0.0f);
-			configParam(SEQ3st::ROW2_PARAM + i, 0.0f, 10.0f, 0.0f);
-			configParam(SEQ3st::ROW3_PARAM + i, 0.0f, 10.0f, 0.0f);
-			configParam(SEQ3st::GATE_PARAM + i, 0.0f, 1.0f, 0.0f);
+			configParam(SEQ3st::ROW1_PARAM + i, 0.0f, 10.0f, 0.0f, "Value");
+			configParam(SEQ3st::ROW2_PARAM + i, 0.0f, 10.0f, 0.0f, "Value");
+			configParam(SEQ3st::ROW3_PARAM + i, 0.0f, 10.0f, 0.0f, "Value");
+			configParam(SEQ3st::GATE_PARAM + i, 0.0f, 1.0f, 0.0f, "Gate");
 		}
 
 		onReset();
@@ -143,6 +146,15 @@ struct SEQ3st : Module
 			this->index = 0;
 	}
 
+	float getShapedRandom(float shapeValue)
+	{
+		int shape = (int)clamp(roundf(shapeValue), -4.f, 4.f) + 4;
+
+		float exponent = shapeExponent[shape];
+
+		return pow(random::uniform(), exponent) * 10.f;
+	}
+
 	void process(const ProcessArgs &args) override
 	{
 		// Run
@@ -158,21 +170,23 @@ struct SEQ3st : Module
 
 		if (running)
 		{
+			float shapeValue = params[SHAPE_PARAM].getValue() + inputs[SHAPE_INPUT].getVoltage();
+
 			if (inputs[EXT_CLOCK_INPUT].isConnected())
 			{
 				// External clock
 				if (clockTrigger.process(inputs[EXT_CLOCK_INPUT].getVoltage()))
 				{
 					setIndex(index + 1);
-					if (params[ROW1_PARAM + index].getValue() >= random::uniform() * 10.f)
+					if (params[ROW1_PARAM + index].getValue() >= getShapedRandom(shapeValue))
 					{
 						gateRow1Out = true;
 					}
-					if (params[ROW2_PARAM + index].getValue() >= random::uniform() * 10.f)
+					if (params[ROW2_PARAM + index].getValue() >= getShapedRandom(shapeValue))
 					{
 						gateRow2Out = true;
 					}
-					if (params[ROW3_PARAM + index].getValue() >= random::uniform() * 10.f)
+					if (params[ROW3_PARAM + index].getValue() >= getShapedRandom(shapeValue))
 					{
 						gateRow3Out = true;
 					}
@@ -187,15 +201,15 @@ struct SEQ3st : Module
 				if (phase >= 1.0f)
 				{
 					setIndex(index + 1);
-					if (params[ROW1_PARAM + index].getValue() >= random::uniform() * 10.f)
+					if (params[ROW1_PARAM + index].getValue() >= getShapedRandom(shapeValue))
 					{
 						gateRow1Out = true;
 					}
-					if (params[ROW2_PARAM + index].getValue() >= random::uniform() * 10.f)
+					if (params[ROW2_PARAM + index].getValue() >= getShapedRandom(shapeValue))
 					{
 						gateRow2Out = true;
 					}
-					if (params[ROW3_PARAM + index].getValue() >= random::uniform() * 10.f)
+					if (params[ROW3_PARAM + index].getValue() >= getShapedRandom(shapeValue))
 					{
 						gateRow3Out = true;
 					}
@@ -280,20 +294,22 @@ struct SEQ3stWidget : ModuleWidget
 		addParam(createParam<LEDButton>(Vec(102, 55), module, SEQ3st::RESET_PARAM));
 		addChild(createLight<MediumLight<GreenLight>>(Vec(106.4f, 59.4f), module, SEQ3st::RESET_LIGHT));
 		addParam(createParam<Rogan1PGreenSnapKnob>(Vec(135, 41), module, SEQ3st::STEPS_PARAM));
-		addChild(createLight<MediumLight<GreenLight>>(Vec(186.4f, 59.4f), module, SEQ3st::GATES_LIGHT));
-		addChild(createLight<MediumLight<GreenLight>>(Vec(226.4f, 59.4f), module, SEQ3st::ROW_LIGHTS));
-		addChild(createLight<MediumLight<GreenLight>>(Vec(266.4f, 59.4f), module, SEQ3st::ROW_LIGHTS + 1));
-		addChild(createLight<MediumLight<GreenLight>>(Vec(306.4f, 59.4f), module, SEQ3st::ROW_LIGHTS + 2));
+		addParam(createParam<Rogan1PGreenSnapKnob>(Vec(175, 41), module, SEQ3st::SHAPE_PARAM));
+		addChild(createLight<MediumLight<GreenLight>>(Vec(226.4f, 59.4f), module, SEQ3st::GATES_LIGHT));
+		addChild(createLight<MediumLight<GreenLight>>(Vec(266.4f, 59.4f), module, SEQ3st::ROW_LIGHTS));
+		addChild(createLight<MediumLight<GreenLight>>(Vec(306.4f, 59.4f), module, SEQ3st::ROW_LIGHTS + 1));
+		addChild(createLight<MediumLight<GreenLight>>(Vec(346.4f, 59.4f), module, SEQ3st::ROW_LIGHTS + 2));
 
-		static const float portX[8] = {20, 60, 100, 140, 180, 220, 260, 300};
+		static const float portX[9] = {20, 60, 100, 140, 180, 220, 260, 300, 340};
 		addInput(createInput<PJ301MPort>(Vec(portX[0] - 1, 98), module, SEQ3st::CLOCK_INPUT));
 		addInput(createInput<PJ301MPort>(Vec(portX[1] - 1, 98), module, SEQ3st::EXT_CLOCK_INPUT));
 		addInput(createInput<PJ301MPort>(Vec(portX[2] - 1, 98), module, SEQ3st::RESET_INPUT));
 		addInput(createInput<PJ301MPort>(Vec(portX[3] - 1, 98), module, SEQ3st::STEPS_INPUT));
-		addOutput(createOutput<PJ301MPort>(Vec(portX[4] - 1, 98), module, SEQ3st::GATES_OUTPUT));
-		addOutput(createOutput<PJ301MPort>(Vec(portX[5] - 1, 98), module, SEQ3st::ROW1_OUTPUT));
-		addOutput(createOutput<PJ301MPort>(Vec(portX[6] - 1, 98), module, SEQ3st::ROW2_OUTPUT));
-		addOutput(createOutput<PJ301MPort>(Vec(portX[7] - 1, 98), module, SEQ3st::ROW3_OUTPUT));
+		addInput(createInput<PJ301MPort>(Vec(portX[4] - 1, 98), module, SEQ3st::SHAPE_INPUT));
+		addOutput(createOutput<PJ301MPort>(Vec(portX[5] - 1, 98), module, SEQ3st::GATES_OUTPUT));
+		addOutput(createOutput<PJ301MPort>(Vec(portX[6] - 1, 98), module, SEQ3st::ROW1_OUTPUT));
+		addOutput(createOutput<PJ301MPort>(Vec(portX[7] - 1, 98), module, SEQ3st::ROW2_OUTPUT));
+		addOutput(createOutput<PJ301MPort>(Vec(portX[8] - 1, 98), module, SEQ3st::ROW3_OUTPUT));
 
 		for (int i = 0; i < 8; i++)
 		{
