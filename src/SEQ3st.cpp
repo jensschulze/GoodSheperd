@@ -61,7 +61,6 @@ struct SEQ3st : Module
 	bool gateRow1IsOpen = false;
 	bool gateRow2IsOpen = false;
 	bool gateRow3IsOpen = false;
-	const float shapeExponent[9] = {0.0625, 0.125, 0.25, 0.5, 1.f, 2.f, 4.f, 8.f, 16.f};
 	dsp::ClockDivider lightDivider;
 
 	SEQ3st()
@@ -71,7 +70,7 @@ struct SEQ3st : Module
 		configParam(SEQ3st::RUN_PARAM, 0.0f, 1.0f, 0.0f, "Run");
 		configParam(SEQ3st::RESET_PARAM, 0.0f, 1.0f, 0.0f, "Reset");
 		configParam(SEQ3st::STEPS_PARAM, 1.0f, 8.0f, 8.0f, "Steps");
-		configParam(SEQ3st::SHAPE_PARAM, -4.f, 4.f, 0.f, "Shape");
+		configParam(SEQ3st::SHAPE_PARAM, -5.f, 5.f, 0.f, "Shape");
 		for (int i = 0; i < 8; i++)
 		{
 			configParam(SEQ3st::ROW1_PARAM + i, 0.0f, 10.0f, 0.0f, "Value");
@@ -148,11 +147,14 @@ struct SEQ3st : Module
 
 	float getShapedRandom(float shapeValue)
 	{
-		int shape = (int)clamp(roundf(shapeValue), -4.f, 4.f) + 4;
+		float shape = clamp(roundf(shapeValue), -5.f, 5.f) * .2f * .99f;
+		const float partialA = (4.0 * shape) / ((1.0 - shape) * (1.0 + shape));
+		const float partialB = (1.0 - shape) / (1.0 + shape);
 
-		float exponent = shapeExponent[shape];
+		float rawRandom = random::uniform() * 2.f - 1.f;
+		float shapedRandom = rawRandom * (partialA + partialB) / ((abs(rawRandom) * partialA) + partialB);
 
-		return pow(random::uniform(), exponent) * 10.f;
+		return (shapedRandom + 1.f) * 5.f;
 	}
 
 	void process(const ProcessArgs &args) override
@@ -294,7 +296,7 @@ struct SEQ3stWidget : ModuleWidget
 		addParam(createParam<LEDButton>(Vec(102, 55), module, SEQ3st::RESET_PARAM));
 		addChild(createLight<MediumLight<GreenLight>>(Vec(106.4f, 59.4f), module, SEQ3st::RESET_LIGHT));
 		addParam(createParam<Rogan1PGreenSnapKnob>(Vec(135, 41), module, SEQ3st::STEPS_PARAM));
-		addParam(createParam<Rogan1PGreenSnapKnob>(Vec(175, 41), module, SEQ3st::SHAPE_PARAM));
+		addParam(createParam<Rogan1PGreen>(Vec(175, 41), module, SEQ3st::SHAPE_PARAM));
 		addChild(createLight<MediumLight<GreenLight>>(Vec(226.4f, 59.4f), module, SEQ3st::GATES_LIGHT));
 		addChild(createLight<MediumLight<GreenLight>>(Vec(266.4f, 59.4f), module, SEQ3st::ROW_LIGHTS));
 		addChild(createLight<MediumLight<GreenLight>>(Vec(306.4f, 59.4f), module, SEQ3st::ROW_LIGHTS + 1));
