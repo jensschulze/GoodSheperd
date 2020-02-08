@@ -1,4 +1,4 @@
-#include "GoodSheperd.hpp"
+#include "plugin.hpp"
 
 Plugin *pluginInstance;
 

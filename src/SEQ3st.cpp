@@ -1,4 +1,4 @@
-#include "GoodSheperd.hpp"
+#include "plugin.hpp"
 
 struct SEQ3st : Module
 {

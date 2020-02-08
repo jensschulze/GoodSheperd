@@ -37,6 +37,15 @@
         "Sequencer",
         "Random"
       ]
+    },
+    {
+      "slug": "Stall",
+      "name": "Stall",
+      "description": "",
+      "tags": [
+        "Splitter",
+        "Utility"
+      ]
     }
   ]
 }

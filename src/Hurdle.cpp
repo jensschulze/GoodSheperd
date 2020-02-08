@@ -1,4 +1,4 @@
-#include "GoodSheperd.hpp"
+#include "plugin.hpp"
 
 struct Hurdle : Module
 {
