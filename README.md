@@ -27,3 +27,13 @@ An uncertain switch: Depending on the voltage at the **P**robability Input, a si
 A modified [VCV Rack Fundamental SEQ3](https://vcvrack.com/Fundamental.html) with stochastic gate outs per row. So you may use the CV as gate probability for the given step in the given row.
 
 * **P Gate** out 1-3: Gate Signal (0/10V). Based on the current CV value a gate signal may or may not be present at this output.
+
+## Stall
+
+![Stall](./doc/stall.png)
+
+Splits trigger/gate signals by a control voltage. Accepts control voltages corresponding to midi notes 35 to 82.
+
+* **CV in**
+* **Gate/Trigger in**
+* **Gate/Trigger out 35-82**
