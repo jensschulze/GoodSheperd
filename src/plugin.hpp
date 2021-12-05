@@ -1,3 +1,4 @@
+#pragma once
 #include "rack.hpp"
 #include "componentlibrary.hpp"
 
@@ -11,3 +12,5 @@ extern Model *modelHurdle;
 extern Model *modelSEQ3st;
 extern Model *modelStable16;
 extern Model *modelStall;
+extern Model *modelSwitch1;
+extern Model *modelSeqtrol;

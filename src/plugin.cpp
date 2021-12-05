@@ -10,4 +10,6 @@ void init(Plugin *p)
 	p->addModel(modelSEQ3st);
 	p->addModel(modelStable16);
 	p->addModel(modelStall);
+	p->addModel(modelSwitch1);
+	p->addModel(modelSeqtrol);
 }
