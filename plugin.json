@@ -1,7 +1,7 @@
 {
   "slug": "GoodSheperd",
   "name": "GoodSheperd",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "license": "GPL-3.0-or-later",
   "brand": "GoodSheperd",
   "author": "Jens Schulze",
@@ -15,7 +15,7 @@
     {
       "slug": "Hurdle",
       "name": "Hurdle",
-      "description": "github.com/jensschulze3000/GoodSheperd",
+      "description": "Bernoulli gate",
       "tags": [
         "Switch",
         "Random"
@@ -24,7 +24,7 @@
     {
       "slug": "Stable16",
       "name": "Stable16",
-      "description": "github.com/jensschulze3000/GoodSheperd",
+      "description": "Eight track gate sequencer",
       "tags": [
         "Sequencer"
       ]
@@ -32,7 +32,7 @@
     {
       "slug": "SEQ3st",
       "name": "SEQ3st",
-      "description": "github.com/jensschulze3000/GoodSheperd",
+      "description": "Eight step stochastic gate sequencer",
       "tags": [
         "Sequencer",
         "Random"
@@ -41,7 +41,7 @@
     {
       "slug": "Stall",
       "name": "Stall",
-      "description": "github.com/jensschulze3000/GoodSheperd",
+      "description": "MIDI note splitter",
       "tags": [
         "Polyphonic",
         "Switch",
@@ -51,7 +51,7 @@
     {
       "slug": "Switch1",
       "name": "Switch1",
-      "description": "github.com/jensschulze3000/GoodSheperd",
+      "description": "Externally triggered 2-in-1 switch",
       "tags": [
         "Switch"
       ]
@@ -59,7 +59,7 @@
     {
       "slug": "Seqtrol",
       "name": "Seqtrol",
-      "description": "github.com/jensschulze3000/GoodSheperd",
+      "description": "Starts sequencers properly when Rack is running syncronized to external MIDI",
       "tags": [
         "Clock modulator",
         "Sample and hold",
