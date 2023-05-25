@@ -12,4 +12,5 @@ void init(Plugin *p)
 	p->addModel(modelStall);
 	p->addModel(modelSwitch1);
 	p->addModel(modelSeqtrol);
+	p->addModel(modelFeeder);
 }

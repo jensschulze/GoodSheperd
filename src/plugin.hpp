@@ -14,3 +14,4 @@ extern Model *modelStable16;
 extern Model *modelStall;
 extern Model *modelSwitch1;
 extern Model *modelSeqtrol;
+extern Model *modelFeeder;
