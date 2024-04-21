@@ -1,9 +1,9 @@
 #include "plugin.hpp"
 
-
 struct Feeder : Module {
 	enum ParamId {
 		ENUMS(KEY_PARAM, 12),
+		INVERSION_PARAM,
 		PARAMS_LEN
 	};
 	enum InputId {
@@ -40,7 +40,6 @@ struct Feeder : Module {
 	int functionLightMapping[12] = {0, 0, 1, 1, 2, 3, 3, 4, 4, 5, 5, 6};
 	int diatonicIndicesMapping[12] = {0, 0, 1, 1, 2, 3, 3, 4, 4, 5, 5, 6};
 	int diatonicMapping[14] = {0, 2, 4, 5, 7, 9, 11, 12, 14, 16, 17, 19, 21, 23};
-	float inversion = 0.0;
 
 	dsp::ClockDivider lightDivider;
 
@@ -51,12 +50,15 @@ struct Feeder : Module {
 			configParam(KEY_PARAM + i, 0.f, 1.f, 0.f, noteNames[i]);
 		}
 
+		configParam(INVERSION_PARAM, 0.f, 6.f, 0.f, "Inversion");
+
 		configInput(PITCH_INPUT, "Key CV");
 		configInput(FUNCTION_INPUT, "Function CV");
 
 		for (int i = 0; i < 4; i++) {
 			configOutput(PITCH_OUTPUT + i, std::to_string(i + 1));
 		}
+
 		configOutput(PITCH_OUTPUT + 4, "Polyphonic");
 	}
 
@@ -74,10 +76,14 @@ struct Feeder : Module {
 		return summedNoteNumber;
 	}
 
+	//void setOutput() {
+	//}
+
 	void process(const ProcessArgs& args) override {
 		float functionCv = inputs[FUNCTION_INPUT].getVoltage();
 		int functionNoteNumber = getNoteNumber(functionCv);
 		int functionLight = functionLightMapping[functionNoteNumber];
+		float functionPitch[4];
 
 		float pitch;
 		if (inputs[PITCH_INPUT].isConnected()) {
@@ -93,15 +99,23 @@ struct Feeder : Module {
 		int functionNote1 = functionNoteMapping[functionNoteNumber];
 		int functionNote2 = diatonicAdd(functionNote1, 2);
 		int functionNote3 = diatonicAdd(functionNote1, 4);
+		int functionNote4 = diatonicAdd(functionNote1, 6);
 
 		outputs[PITCH_OUTPUT].setVoltage(pitch + functionNote1 / 12.0);
 		outputs[PITCH_OUTPUT + 1].setVoltage(pitch + functionNote2 / 12.0);
 		outputs[PITCH_OUTPUT + 2].setVoltage(pitch + functionNote3 / 12.0);
+		outputs[PITCH_OUTPUT + 3].setVoltage(pitch + functionNote4 / 12.0);
 	}
 };
 
 
 struct FeederWidget : ModuleWidget {
+	struct RoundHugeBlackSnapKnob : RoundHugeBlackKnob {
+		RoundHugeBlackSnapKnob() {
+			snap = true;
+		}
+	};
+
 	FeederWidget(Feeder* module) {
 		setModule(module);
 		setPanel(createPanel(asset::plugin(pluginInstance, "res/Feeder.svg")));
@@ -136,6 +150,8 @@ struct FeederWidget : ModuleWidget {
 		addParam(createParamCentered<LEDButton>(mm2px(Vec(124.0, 79.0)), module, Feeder::KEY_PARAM + 11));
 		addChild(createLightCentered<MediumLight<GreenLight>>(mm2px(Vec(124.0, 79.0)), module, Feeder::KEY_LIGHT + 11));
 
+		addParam(createParamCentered<RoundHugeBlackSnapKnob>(mm2px(Vec(124.0, 32.5)), module, Feeder::INVERSION_PARAM));
+
 		addInput(createInputCentered<PJ301MPort>(mm2px(Vec(15.0, 71.5)), module, Feeder::PITCH_INPUT));
 		addInput(createInputCentered<PJ301MPort>(mm2px(Vec(15.0, 99.0)), module, Feeder::FUNCTION_INPUT));
 
@@ -152,6 +168,5 @@ struct FeederWidget : ModuleWidget {
 		}
 	}
 };
-
 
 Model* modelFeeder = createModel<Feeder, FeederWidget>("Feeder");
