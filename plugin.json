@@ -76,6 +76,15 @@
         "Digital",
         "Utility"
       ]
+    },
+    {
+      "slug": "Ringo",
+      "name": "Ringo",
+      "description": "",
+      "tags": [
+        "Effect",
+        "Ring modulator"
+      ]
     }
   ]
 }

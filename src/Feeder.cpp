@@ -83,7 +83,7 @@ struct Feeder : Module {
 		float functionCv = inputs[FUNCTION_INPUT].getVoltage();
 		int functionNoteNumber = getNoteNumber(functionCv);
 		int functionLight = functionLightMapping[functionNoteNumber];
-		float functionPitch[4];
+		int functionNote[4] = {};
 
 		float pitch;
 		if (inputs[PITCH_INPUT].isConnected()) {
@@ -96,15 +96,17 @@ struct Feeder : Module {
 			lights[FUNCTION_LIGHT + i].setSmoothBrightness(i == functionLight ? 0.7 : 0.0, args.sampleTime * lightDivider.getDivision());
 		}
 
-		int functionNote1 = functionNoteMapping[functionNoteNumber];
-		int functionNote2 = diatonicAdd(functionNote1, 2);
-		int functionNote3 = diatonicAdd(functionNote1, 4);
-		int functionNote4 = diatonicAdd(functionNote1, 6);
+		functionNote[0] = functionNoteMapping[functionNoteNumber];
+		functionNote[1] = diatonicAdd(functionNote[0], 2);
+		functionNote[2] = diatonicAdd(functionNote[0], 4);
+		functionNote[3] = diatonicAdd(functionNote[0], 6);
 
-		outputs[PITCH_OUTPUT].setVoltage(pitch + functionNote1 / 12.0);
-		outputs[PITCH_OUTPUT + 1].setVoltage(pitch + functionNote2 / 12.0);
-		outputs[PITCH_OUTPUT + 2].setVoltage(pitch + functionNote3 / 12.0);
-		outputs[PITCH_OUTPUT + 3].setVoltage(pitch + functionNote4 / 12.0);
+		for (int i = 0; i < 4; i++) {
+			outputs[PITCH_OUTPUT + i].setVoltage(pitch + functionNote[i] / 12.0); // monophonic outs
+			outputs[PITCH_OUTPUT + 4].setVoltage(pitch + functionNote[i] / 12.0, i); // polyphonic out
+		}
+
+		outputs[PITCH_OUTPUT + 4].setChannels(4);
 	}
 };
 
