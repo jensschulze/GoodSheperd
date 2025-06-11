@@ -85,6 +85,15 @@
         "Effect",
         "Ring modulator"
       ]
+    },
+    {
+      "slug": "Octo",
+      "name": "Octo",
+      "description": "Octaver distortion",
+      "tags": [
+        "effect",
+        "distortion"
+      ]
     }
   ]
 }

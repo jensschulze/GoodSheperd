@@ -15,4 +15,5 @@ extern Model *modelStall;
 extern Model *modelSwitch1;
 extern Model *modelSeqtrol;
 extern Model *modelFeeder;
-extern Model* modelRingo;
+extern Model *modelRingo;
+extern Model *modelOcto;

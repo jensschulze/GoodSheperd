@@ -14,4 +14,5 @@ void init(Plugin *p)
 	p->addModel(modelSeqtrol);
 	p->addModel(modelFeeder);
 	p->addModel(modelRingo);
+	p->addModel(modelOcto);
 }
