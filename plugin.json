@@ -66,6 +66,14 @@
         "Switch",
         "Utility"
       ]
+    },
+    {
+      "slug": "Resrever",
+      "name": "Resrever",
+      "description": "",
+      "tags": [
+        "Effect"
+      ]
     }
   ]
 }
