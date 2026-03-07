@@ -5,12 +5,12 @@ struct Resrever : Module
 {
 	enum ParamId
 	{
-		REVERSE_BUTTON_PARAM,
 		PARAMS_LEN
 	};
 	enum InputId
 	{
 		AUDIO_INPUT,
+		REVERSE_INPUT,
 		INPUTS_LEN
 	};
 	enum OutputId
@@ -24,12 +24,13 @@ struct Resrever : Module
 	};
 
 	ResreverCore core;
+	dsp::SchmittTrigger reverseTrigger;
 
-	Resrever() : core(4.0f, APP->engine->getSampleRate())
+	Resrever() : core(10.0f, APP->engine->getSampleRate())
 	{
 		config(PARAMS_LEN, INPUTS_LEN, OUTPUTS_LEN, LIGHTS_LEN);
-		configParam(REVERSE_BUTTON_PARAM, 0.f, 1.f, 0.f, "Reverse");
 		configInput(AUDIO_INPUT, "Audio Input");
+		configInput(REVERSE_INPUT, "Reverse Gate");
 		configOutput(AUDIO_OUTPUT, "Audio Output");
 	}
 
@@ -40,10 +41,13 @@ struct Resrever : Module
 
 	void process(const ProcessArgs &args) override
 	{
-		bool reversePressed = params[REVERSE_BUTTON_PARAM].getValue() > 0.5f;
 		float input = inputs[AUDIO_INPUT].getVoltage();
 
-		float output = core.process(input, reversePressed);
+		// Process reverse gate with Schmitt trigger (0.1V low, 2.0V high)
+		reverseTrigger.process(inputs[REVERSE_INPUT].getVoltage(), 0.1f, 2.0f);
+		bool reverseState = reverseTrigger.isHigh();
+
+		float output = core.process(input, reverseState);
 		outputs[AUDIO_OUTPUT].setVoltage(output);
 	}
 };
@@ -60,7 +64,7 @@ struct ResreverWidget : ModuleWidget
 		addChild(createWidget<ScrewSilver>(Vec(RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
 		addChild(createWidget<ScrewSilver>(Vec(box.size.x - 2 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
 
-		addParam(createParamCentered<VCVButton>(mm2px(Vec(10.16, 36.0)), module, Resrever::REVERSE_BUTTON_PARAM));
+		addInput(createInputCentered<PJ301MPort>(mm2px(Vec(10.16, 36.0)), module, Resrever::REVERSE_INPUT));
 
 		addInput(createInputCentered<PJ301MPort>(mm2px(Vec(10.16, 69.0)), module, Resrever::AUDIO_INPUT));
 

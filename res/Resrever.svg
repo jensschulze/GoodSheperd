@@ -238,8 +238,8 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="2.9074869"
-     inkscape:cx="-26.311383"
-     inkscape:cy="318.83205"
+     inkscape:cx="-33.190176"
+     inkscape:cy="214.96228"
      inkscape:document-units="mm"
      inkscape:current-layer="layer2"
      showgrid="false"
@@ -471,11 +471,11 @@
        r="4"
        inkscape:label="AUDIO" />
     <circle
-       style="display:inline;opacity:1;fill:#ff0000;fill-opacity:0.501961;stroke:none;stroke-width:0.132291"
+       style="display:inline;opacity:1;fill:#00ff00;fill-opacity:0.501961;stroke:none;stroke-width:0.132291"
        id="circle1"
        cx="10.16"
        cy="36"
        r="4"
-       inkscape:label="REVERSE_BUTTON" />
+       inkscape:label="REVERSE" />
   </g>
 </svg>
