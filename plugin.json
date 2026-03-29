@@ -74,6 +74,14 @@
       "tags": [
         "Effect"
       ]
+    },
+    {
+      "slug": "Spectral",
+      "name": "Spectral",
+      "description": "Moving harmonics filter",
+      "tags": [
+        "filter"
+      ]
     }
   ]
 }
