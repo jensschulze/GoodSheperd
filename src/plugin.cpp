@@ -14,4 +14,5 @@ void init(Plugin *p)
 	p->addModel(modelSeqtrol);
 	p->addModel(modelResrever);
 	p->addModel(modelSpectral);
+	p->addModel(modelRepool);
 }

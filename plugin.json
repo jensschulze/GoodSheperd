@@ -82,6 +82,14 @@
       "tags": [
         "filter"
       ]
+    },
+    {
+      "slug": "Repool",
+      "name": "Repool",
+      "description": "Live looper",
+      "tags": [
+        "sampler"
+      ]
     }
   ]
 }

@@ -16,3 +16,4 @@ extern Model *modelSwitch1;
 extern Model *modelSeqtrol;
 extern Model *modelResrever;
 extern Model *modelSpectral;
+extern Model *modelRepool;
