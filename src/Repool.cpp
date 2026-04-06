@@ -32,6 +32,7 @@ struct Repool : Module
     ENUMS(SELECTED_LIGHT, 4),
     ENUMS(STATE_LIGHT, 4 * 3), // 4 columns × RGB
     ENUMS(ACTIVE_LIGHT, 4),
+    POS_LIGHT,
     LIGHTS_LEN
   };
 
@@ -310,6 +311,9 @@ struct Repool : Module
 
       for (int i = 0; i < 4; i++)
         lights[ACTIVE_LIGHT + i].setBrightness(params[ACTIVE_PARAM + i].getValue());
+
+      float pos = (masterIdx >= 0) ? tracks[masterIdx].getPosition() : 0.0f;
+      lights[POS_LIGHT].setBrightness(pos);
     }
   }
 
@@ -521,6 +525,8 @@ struct RepoolWidget : ModuleWidget
         mm2px(Vec(13.f, 108.f)), module, Repool::AUDIO_OUTPUT));
     addOutput(createOutputCentered<PJ301MPort>(
         mm2px(Vec(68.f, 96.f)), module, Repool::POS_OUTPUT));
+    addChild(createLightCentered<MediumLight<RedLight>>(
+        mm2px(Vec(68.f, 88.f)), module, Repool::POS_LIGHT));
     addOutput(createOutputCentered<PJ301MPort>(
         mm2px(Vec(88.f, 96.f)), module, Repool::LOOP_START_OUTPUT));
   }
