@@ -58,18 +58,36 @@ struct Repool : Module
   // Sync outputs
   dsp::PulseGenerator loopStartPulse;
 
+  enum class Engage
+  {
+    INSTANT,
+    SYNCED
+  };
+
   // Operating mode
   Mode mode = Mode::STACK;
 
+  // Engage mode
+  Engage engage = Engage::INSTANT;
+
   // Stack-mode option: lock all track lengths to the first committed loop
   bool linked = false;
+
+  // Synced-engage state
+  bool pendingRec = false;        // REC pressed; waiting for loop start to begin recording
+  bool syncedRecHeld = false;     // recording started in synced mode while button was still held
+  int  syncedRecTimer = 0;        // samples elapsed since synced recording was started
+  bool loopStartOccurred = false; // set at end of frame, consumed at start of next frame
+
+  float sampleRate = 44100.f;
 
   // Currently selected track — all actions target this track
   int selectedTrack = 0;
 
   Repool()
   {
-    const float sr = APP->engine->getSampleRate();
+    sampleRate = APP->engine->getSampleRate();
+    const float sr = sampleRate;
     tracks.reserve(4);
     for (int i = 0; i < 4; i++)
       tracks.emplace_back(sr);
@@ -97,13 +115,18 @@ struct Repool : Module
 
   void onSampleRateChange() override
   {
-    const float sr = APP->engine->getSampleRate();
+    sampleRate = APP->engine->getSampleRate();
+    const float sr = sampleRate;
     for (auto &t : tracks)
       t.setSampleRate(sr);
     clockPeriod = 0.0f;
     clockTimer = 0;
     for (int i = 0; i < 4; i++)
       pendingStop[i] = false;
+    pendingRec = false;
+    syncedRecHeld = false;
+    syncedRecTimer = 0;
+    loopStartOccurred = false;
   }
 
   void onReset() override
@@ -118,12 +141,17 @@ struct Repool : Module
     clockPeriod = 0.0f;
     clockTimer = 0;
     selectedTrack = 0;
+    pendingRec = false;
+    syncedRecHeld = false;
+    syncedRecTimer = 0;
+    loopStartOccurred = false;
   }
 
   json_t *dataToJson() override
   {
     json_t *root = json_object();
     json_object_set_new(root, "mode", json_integer(static_cast<int>(mode)));
+    json_object_set_new(root, "engage", json_integer(static_cast<int>(engage)));
     json_object_set_new(root, "linked", json_boolean(linked));
     json_object_set_new(root, "selectedTrack", json_integer(selectedTrack));
     return root;
@@ -135,6 +163,9 @@ struct Repool : Module
     v = json_object_get(root, "mode");
     if (v)
       mode = static_cast<Mode>(json_integer_value(v));
+    v = json_object_get(root, "engage");
+    if (v)
+      engage = static_cast<Engage>(json_integer_value(v));
     v = json_object_get(root, "linked");
     if (v)
       linked = json_boolean_value(v);
@@ -169,11 +200,13 @@ struct Repool : Module
     return nonEmpty >= i;
   }
 
-  // Selection is blocked while the selected track is recording or overdubbing.
+  // Selection is blocked while the selected track is recording or overdubbing,
+  // or while a synced record is pending.
   bool selectionBlocked() const
   {
     auto s = tracks[selectedTrack].getState();
-    return s == LoopTrack::State::RECORDING || s == LoopTrack::State::OVERDUBBING;
+    return s == LoopTrack::State::RECORDING || s == LoopTrack::State::OVERDUBBING
+           || pendingRec;
   }
 
   void stopRecordQuantized(int i)
@@ -226,10 +259,14 @@ struct Repool : Module
       clockTimer = 0;
     }
 
+    // Consume the loop-start flag that was set at the end of the previous frame.
+    bool loopStart = loopStartOccurred;
+    loopStartOccurred = false;
+
     if (mode == Mode::SPREAD)
-      processSpread();
+      processSpread(loopStart);
     else
-      processStack();
+      processStack(loopStart);
 
     // ── Audio mix with per-track muting ───────────────────────────
     float dryIn = inputs[AUDIO_INPUT].getVoltage();
@@ -266,7 +303,10 @@ struct Repool : Module
       outputs[POS_OUTPUT].setVoltage(tracks[masterIdx].getPosition() * 10.0f);
       int currPlayhead = tracks[masterIdx].getPlayhead();
       if (prevPlayhead > 0 && currPlayhead < prevPlayhead)
+      {
         loopStartPulse.trigger(1e-3f);
+        loopStartOccurred = true;
+      }
     }
     else
     {
@@ -299,11 +339,12 @@ struct Repool : Module
       {
         for (int i = 0; i < 4; i++)
         {
+          bool pending = pendingRec && (i == selectedTrack);
           auto s = tracks[i].getState();
           lights[STATE_LIGHT + i * 3 + 0].setBrightness(
-              s == LoopTrack::State::RECORDING ? 1.0f : 0.0f);
+              pending || s == LoopTrack::State::RECORDING ? 1.0f : 0.0f);
           lights[STATE_LIGHT + i * 3 + 1].setBrightness(
-              s == LoopTrack::State::PLAYING ? 0.5f : 0.0f);
+              pending ? 1.0f : (s == LoopTrack::State::PLAYING ? 0.5f : 0.0f));
           lights[STATE_LIGHT + i * 3 + 2].setBrightness(
               s == LoopTrack::State::OVERDUBBING ? 1.0f : 0.0f);
         }
@@ -319,9 +360,9 @@ struct Repool : Module
 
 private:
   // ── Stack mode: 4 independent tracks, one selected at a time ─────────
-  void processStack()
+  void processStack(bool loopStart)
   {
-    // Handle select buttons (blocked while recording/overdubbing)
+    // Handle select buttons (blocked while recording/overdubbing or rec pending)
     if (!selectionBlocked())
     {
       for (int i = 0; i < 4; i++)
@@ -333,48 +374,137 @@ private:
 
     auto &st = tracks[selectedTrack];
 
-    // REC (hold-to-record)
+    // ── REC ──────────────────────────────────────────────────────────────
     auto recEvent = recEdge.processEvent(params[REC_PARAM].getValue() > 0.5f);
-    if (recEvent == dsp::BooleanTrigger::TRIGGERED)
+
+    if (engage == Engage::SYNCED && masterLoopLength() > 0)
     {
-      st.startRecord();
-      pendingStop[selectedTrack] = false;
-      if (linked)
+      // Synced mode: queue recording for the next loop start.
+
+      if (recEvent == dsp::BooleanTrigger::TRIGGERED)
       {
-        int master = masterLoopLength();
-        if (master > 0)
+        if (st.getState() == LoopTrack::State::EMPTY)
         {
-          pendingStop[selectedTrack] = true;
-          targetStop[selectedTrack] = master;
+          pendingRec = true;
+          syncedRecHeld = true;
+          syncedRecTimer = 0;
         }
       }
+
+      if (recEvent == dsp::BooleanTrigger::UNTRIGGERED)
+      {
+        if (syncedRecHeld)
+        {
+          // Button released while a synced recording is in progress.
+          int threshold = (int)(0.1f * sampleRate);
+          if (syncedRecTimer < threshold)
+          {
+            // Released within 100 ms of loop start → record exactly one full loop.
+            int loopLen = masterLoopLength();
+            if (st.getState() == LoopTrack::State::RECORDING && loopLen > 0)
+            {
+              pendingStop[selectedTrack] = true;
+              targetStop[selectedTrack] = loopLen;
+            }
+          }
+          else
+          {
+            // Released after 100 ms → hold-to-record, stop now.
+            if (!pendingStop[selectedTrack])
+              stopRecordQuantized(selectedTrack);
+          }
+          syncedRecHeld = false;
+        }
+        // If still pending (button released before loop start), leave pendingRec set
+        // so recording starts at the next loop start (WAS-pressed semantics).
+      }
+
+      // At loop start: begin recording if pending.
+      if (loopStart && pendingRec && st.getState() == LoopTrack::State::EMPTY)
+      {
+        st.startRecord();
+        pendingRec = false;
+        pendingStop[selectedTrack] = false;
+
+        bool buttonHeld = (params[REC_PARAM].getValue() > 0.5f);
+        if (buttonHeld)
+        {
+          syncedRecHeld = true;
+          syncedRecTimer = 0;
+        }
+        else
+        {
+          // Button was released before loop start → record one full loop.
+          int loopLen = masterLoopLength();
+          if (loopLen > 0)
+          {
+            pendingStop[selectedTrack] = true;
+            targetStop[selectedTrack] = loopLen;
+          }
+        }
+      }
+
+      // Increment timer while synced recording is held.
+      if (syncedRecHeld && st.getState() == LoopTrack::State::RECORDING)
+        syncedRecTimer++;
     }
-    if (recEvent == dsp::BooleanTrigger::UNTRIGGERED)
+    else
     {
-      if (!pendingStop[selectedTrack])
-        stopRecordQuantized(selectedTrack);
+      // Instant mode (or no loop to sync to yet).
+      if (recEvent == dsp::BooleanTrigger::TRIGGERED)
+      {
+        st.startRecord();
+        pendingStop[selectedTrack] = false;
+        if (linked)
+        {
+          int master = masterLoopLength();
+          if (master > 0)
+          {
+            pendingStop[selectedTrack] = true;
+            targetStop[selectedTrack] = master;
+          }
+        }
+      }
+      if (recEvent == dsp::BooleanTrigger::UNTRIGGERED)
+      {
+        if (!pendingStop[selectedTrack])
+          stopRecordQuantized(selectedTrack);
+      }
     }
 
-    // OVD (hold-to-overdub)
+    // ── OVD ──────────────────────────────────────────────────────────────
     auto ovdEvent = ovdEdge.processEvent(params[OVD_PARAM].getValue() > 0.5f);
-    if (ovdEvent == dsp::BooleanTrigger::TRIGGERED)
-      st.startOverdub();
+
+    if (engage == Engage::SYNCED)
+    {
+      // Start overdub at loop start only if button IS held at that moment.
+      if (loopStart && params[OVD_PARAM].getValue() > 0.5f)
+        st.startOverdub();
+    }
+    else
+    {
+      if (ovdEvent == dsp::BooleanTrigger::TRIGGERED)
+        st.startOverdub();
+    }
     if (ovdEvent == dsp::BooleanTrigger::UNTRIGGERED)
       st.stopOverdub();
 
-    // UND / CLR (momentary)
+    // ── UND / CLR ─────────────────────────────────────────────────────────
     if (undEdge.process(params[UND_PARAM].getValue() > 0.5f))
       st.undo();
     if (clrEdge.process(params[CLR_PARAM].getValue() > 0.5f))
     {
       st.clear();
+      pendingRec = false;
+      syncedRecHeld = false;
+      syncedRecTimer = 0;
       pendingStop[selectedTrack] = false;
       // Fall back to track 0 if this track is no longer selectable
       if (!canSelect(selectedTrack))
         selectedTrack = 0;
     }
 
-    // Deferred / linked stop
+    // ── Deferred / linked stop ────────────────────────────────────────────
     for (int i = 0; i < 4; i++)
     {
       if (pendingStop[i] &&
@@ -384,13 +514,14 @@ private:
         tracks[i].setWritePos(targetStop[i]);
         tracks[i].stopRecord();
         pendingStop[i] = false;
+        syncedRecHeld = false;
       }
     }
   }
 
   // ── Spread mode: one loop, columns = layer versions ───────────────────
   // SEL buttons rewind to that layer version. REC/OVD act on tracks[0].
-  void processSpread()
+  void processSpread(bool loopStart)
   {
     auto &t0 = tracks[0];
     static constexpr int SPREAD_MAX_LAYERS = 3;
@@ -412,7 +543,7 @@ private:
       }
     }
 
-    // REC (hold to record base)
+    // REC: first recording always starts instantly (nothing to sync to yet)
     auto recEvent = recEdge.processEvent(params[REC_PARAM].getValue() > 0.5f);
     if (recEvent == dsp::BooleanTrigger::TRIGGERED)
     {
@@ -430,11 +561,23 @@ private:
 
     // OVD (hold to add next layer)
     auto ovdEvent = ovdEdge.processEvent(params[OVD_PARAM].getValue() > 0.5f);
-    if (ovdEvent == dsp::BooleanTrigger::TRIGGERED)
+
+    if (engage == Engage::SYNCED)
     {
-      if (t0.getLayerCount() < SPREAD_MAX_LAYERS &&
+      // Start overdub at loop start only if button IS held.
+      if (loopStart && params[OVD_PARAM].getValue() > 0.5f &&
+          t0.getLayerCount() < SPREAD_MAX_LAYERS &&
           t0.getState() == LoopTrack::State::PLAYING)
         t0.startOverdub();
+    }
+    else
+    {
+      if (ovdEvent == dsp::BooleanTrigger::TRIGGERED)
+      {
+        if (t0.getLayerCount() < SPREAD_MAX_LAYERS &&
+            t0.getState() == LoopTrack::State::PLAYING)
+          t0.startOverdub();
+      }
     }
     if (ovdEvent == dsp::BooleanTrigger::UNTRIGGERED)
     {
@@ -554,6 +697,21 @@ struct RepoolWidget : ModuleWidget
                                   CHECKMARK(m->linked),
                                   [m]()
                                   { m->linked = !m->linked; }));
+
+    menu->addChild(new MenuSeparator);
+    menu->addChild(createMenuLabel("Engage"));
+    menu->addChild(createMenuItem("Instant",
+                                  CHECKMARK(m->engage == Repool::Engage::INSTANT),
+                                  [m]()
+                                  {
+                                    m->engage = Repool::Engage::INSTANT;
+                                    m->pendingRec = false;
+                                    m->syncedRecHeld = false;
+                                  }));
+    menu->addChild(createMenuItem("Synced",
+                                  CHECKMARK(m->engage == Repool::Engage::SYNCED),
+                                  [m]()
+                                  { m->engage = Repool::Engage::SYNCED; }));
   }
 };
 
