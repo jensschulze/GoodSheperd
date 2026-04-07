@@ -60,6 +60,13 @@ public:
         state = State::PLAYING;
     }
 
+    // Reset playhead to 0. If overdubbing, commits the current layer first.
+    // No-op during RECORDING or when EMPTY.
+    void retrigger() {
+        if (state == State::OVERDUBBING) stopOverdub();
+        if (state == State::PLAYING) playhead = 0;
+    }
+
     // Remove the last committed layer, or discard an in-progress overdub.
     void undo() {
         if (state == State::OVERDUBBING) {

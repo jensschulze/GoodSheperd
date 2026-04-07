@@ -12,6 +12,7 @@ struct Repool : Module
     OVD_PARAM,
     UND_PARAM,
     CLR_PARAM,
+    RTG_PARAM,
     PARAMS_LEN
   };
   enum InputId
@@ -45,7 +46,7 @@ struct Repool : Module
   std::vector<LoopTrack> tracks;
 
   dsp::BooleanTrigger selEdge[4];
-  dsp::BooleanTrigger recEdge, ovdEdge, undEdge, clrEdge;
+  dsp::BooleanTrigger recEdge, ovdEdge, undEdge, clrEdge, rtgEdge;
   dsp::ClockDivider lightDivider;
 
   // Clock quantization
@@ -104,6 +105,7 @@ struct Repool : Module
     configButton(OVD_PARAM, "Overdub");
     configButton(UND_PARAM, "Undo");
     configButton(CLR_PARAM, "Clear");
+    configButton(RTG_PARAM, "Retrigger");
     configInput(AUDIO_INPUT, "Audio");
     configInput(CLOCK_INPUT, "Clock");
     configOutput(AUDIO_OUTPUT, "Audio");
@@ -489,7 +491,7 @@ private:
     if (ovdEvent == dsp::BooleanTrigger::UNTRIGGERED)
       st.stopOverdub();
 
-    // ── UND / CLR ─────────────────────────────────────────────────────────
+    // ── UND / CLR / RTG ───────────────────────────────────────────────────
     if (undEdge.process(params[UND_PARAM].getValue() > 0.5f))
       st.undo();
     if (clrEdge.process(params[CLR_PARAM].getValue() > 0.5f))
@@ -502,6 +504,12 @@ private:
       // Fall back to track 0 if this track is no longer selectable
       if (!canSelect(selectedTrack))
         selectedTrack = 0;
+    }
+    if (rtgEdge.process(params[RTG_PARAM].getValue() > 0.5f))
+    {
+      for (auto &t : tracks)
+        t.retrigger();
+      loopStartPulse.trigger(1e-3f);
     }
 
     // ── Deferred / linked stop ────────────────────────────────────────────
@@ -595,7 +603,7 @@ private:
       pendingStop[0] = false;
     }
 
-    // UND / CLR
+    // UND / CLR / RTG
     if (undEdge.process(params[UND_PARAM].getValue() > 0.5f))
       t0.undo();
     if (clrEdge.process(params[CLR_PARAM].getValue() > 0.5f))
@@ -603,6 +611,11 @@ private:
       t0.clear();
       pendingStop[0] = false;
       selectedTrack = 0;
+    }
+    if (rtgEdge.process(params[RTG_PARAM].getValue() > 0.5f))
+    {
+      t0.retrigger();
+      loopStartPulse.trigger(1e-3f);
     }
   }
 };
@@ -654,6 +667,10 @@ struct RepoolWidget : ModuleWidget
         mm2px(Vec(trackX[2], 72.f)), module, Repool::UND_PARAM));
     addParam(createParamCentered<VCVButton>(
         mm2px(Vec(trackX[3], 72.f)), module, Repool::CLR_PARAM));
+
+    // ── Retrigger ─────────────────────────────────────────────────
+    addParam(createParamCentered<VCVButton>(
+        mm2px(Vec(trackX[1], 86.f)), module, Repool::RTG_PARAM));
 
     // ── Global controls ───────────────────────────────────────────
     addParam(createParamCentered<RoundBlackKnob>(
